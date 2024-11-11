@@ -1,2 +1,2 @@
 # MyRealEstate
-A property manage,ent application
+A property management application
