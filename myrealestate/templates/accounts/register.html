@@ -1,0 +1,65 @@
+{% extends "auth_base.html" %}
+{% load static %}
+{% block content %}
+<div class="min-h-screen hero bg-base-200">
+    <div class="hero-content flex-col w-full max-w-md">
+        <div class="text-center">
+            <h1 class="text-3xl font-bold">Create Account</h1>
+            <p class="py-3 text-base-content/70">Join us by creating a new account</p>
+        </div>
+
+        <div class="card w-full bg-base-100 shadow-xl">
+            <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-{{ message.tags }}{% endif %} mb-4">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text">{{ field.label }}</span>
+                            {% if field.field.required %}
+                                <span class="label-text-alt text-error">*</span>
+                            {% endif %}
+                        </label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ field.errors|join:", " }}</span>
+                            </label>
+                        {% endif %}
+                        {% if field.help_text %}
+                            <label class="label">
+                                <span class="label-text-alt">{{ field.help_text }}</span>
+                            </label>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="mt-6">
+                        <button type="submit" class="btn btn-primary w-full">
+                            Create Account
+                        </button>
+                    </div>
+                </form>
+
+                <div class="divider">or</div>
+
+                <div class="text-center">
+                    <p class="text-sm">
+                        Already have an account?
+                        <a href="#" class="link link-primary">Sign in</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
