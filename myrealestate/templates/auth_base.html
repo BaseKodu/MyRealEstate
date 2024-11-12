@@ -1,27 +1,30 @@
+{% load tailwind_tags %}
 <!DOCTYPE html>
-<html lang="en" data-theme="sunset">
+<html lang="en" data-theme="business">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}Your Site{% endblock %}</title>
-    {% load static %}
-    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    {% tailwind_css %}
 </head>
 <body>
-    <div class="min-h-screen bg-base-200">
-        {% if messages %}
-        <div class="toast toast-top toast-end">
-            {% for message in messages %}
-            <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}">
-                <span>{{ message }}</span>
+    <div class="min-h-screen hero bg-base-200">
+        <div class="hero-content flex-col w-full max-w-md">
+            {% if messages %}
+            <div class="toast toast-top toast-end">
+                {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}">
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            {% endif %}
+            
+            <main class="container mx-auto px-4 py-8">
+                {% block content %}{% endblock %}
+            </main>
         </div>
-        {% endif %}
-        
-        <main class="container mx-auto px-4 py-8">
-            {% block content %}{% endblock %}
-        </main>
     </div>
     
     {% block extra_js %}{% endblock %}
