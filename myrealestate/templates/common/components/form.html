@@ -1,0 +1,26 @@
+{% for field in form %}
+<div class="form-control w-full">
+    <label class="label">
+        <span class="label-text">{{ field.label }}</span>
+        {% if field.field.required %}
+        <span class="label-text-alt text-error font-bold">*</span>
+        {% endif %}
+    </label>
+    
+    <div class="{% if field.errors %}input-error{% endif %}">
+        {{ field }}
+    </div>
+    
+    {% if field.help_text %}
+    <label class="label">
+        <span class="label-text-alt">{{ field.help_text }}</span>
+    </label>
+    {% endif %}
+    
+    {% if field.errors %}
+    <label class="label">
+        <span class="label-text-alt text-error">{{ field.errors|join:", " }}</span>
+    </label>
+    {% endif %}
+</div>
+{% endfor %}

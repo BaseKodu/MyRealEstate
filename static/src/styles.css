@@ -1,0 +1,128 @@
+/* styles.css */
+@tailwind base;
+@tailwind components;
+
+@layer components {
+  /* Form Controls */
+  .form-control {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+    @apply disabled:bg-gray-100 disabled:cursor-not-allowed;
+    @apply text-gray-900 placeholder-gray-400;
+    @apply transition duration-150 ease-in-out;
+  }
+
+  .form-control-error {
+    @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+  }
+
+  .form-control-required label::after {
+    content: "*";
+    @apply text-red-500 ml-1;
+  }
+
+  /* Select Inputs */
+  .form-select {
+    @apply form-control pr-10;
+    @apply bg-no-repeat bg-right-4;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-size: 1.5em 1.5em;
+  }
+
+  /* Checkboxes */
+  .form-checkbox {
+    @apply h-4 w-4 rounded border-gray-300 text-blue-600;
+    @apply focus:ring-2 focus:ring-blue-500;
+    @apply transition duration-150 ease-in-out;
+  }
+
+  /* Textareas */
+  .form-textarea {
+    @apply form-control;
+    @apply resize-y min-h-[100px];
+  }
+
+  /* Specific input types */
+  .form-numeric {
+    @apply text-right;
+  }
+
+  .form-date {
+    @apply cursor-pointer;
+  }
+
+  /* Size variations */
+  .form-control-sm {
+    @apply px-2 py-1 text-sm;
+  }
+
+  .form-control-lg {
+    @apply px-4 py-3 text-lg;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 border rounded-md;
+    @apply font-medium focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply transition duration-150 ease-in-out;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply border-transparent bg-blue-600 text-white;
+    @apply hover:bg-blue-700 focus:ring-blue-500;
+  }
+
+  .btn-secondary {
+    @apply border-gray-300 bg-white text-gray-700;
+    @apply hover:bg-gray-50 focus:ring-gray-500;
+  }
+
+  .btn-danger {
+    @apply border-transparent bg-red-600 text-white;
+    @apply hover:bg-red-700 focus:ring-red-500;
+  }
+
+  .btn-success {
+    @apply border-transparent bg-green-600 text-white;
+    @apply hover:bg-green-700 focus:ring-green-500;
+  }
+
+  .btn-warning {
+    @apply border-transparent bg-yellow-600 text-white;
+    @apply hover:bg-yellow-700 focus:ring-yellow-500;
+  }
+
+  .btn-info {
+    @apply border-transparent bg-sky-600 text-white;
+    @apply hover:bg-sky-700 focus:ring-sky-500;
+  }
+
+  .btn-link {
+    @apply border-transparent bg-transparent text-blue-600;
+    @apply hover:underline focus:ring-blue-500;
+  }
+
+  /* Button sizes */
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-lg;
+  }
+
+  /* Button states */
+  .btn-loading {
+    @apply relative text-opacity-0 !important;
+  }
+
+  .btn-loading::after {
+    @apply absolute block w-4 h-4 border-2 rounded-full;
+    @apply border-t-current border-r-current border-b-transparent border-l-transparent;
+    @apply animate-spin;
+    content: "";
+  }
+}
+
+@tailwind utilities;

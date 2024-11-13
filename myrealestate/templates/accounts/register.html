@@ -1,0 +1,40 @@
+{% extends "auth_base.html" %}
+{% load tailwind_tags %}
+{% load static %}
+{% block content %}
+
+<div class="text-center">
+    <h1 class="text-3xl font-bold">Create Account</h1>
+    <p class="py-3 text-base-content/70">Join us by creating a new account</p>
+</div>
+
+<div class="card w-full bg-base-100 shadow-xl">
+    <div class="card-body">
+
+        <form method="post" class="space-y-4" novalidate>
+            {% csrf_token %}
+            
+            {% include "common/components/form.html" %}
+
+            <div class="mt-6">
+                <button type="submit" class="btn btn-primary w-full">
+                    Create Account
+                </button>
+            </div>
+        </form>
+
+        <div class="divider">or</div>
+
+        <div class="text-center">
+            <p class="text-sm">
+                Already have an account?
+                <a href="{% url 'accounts:login' %}" class="link link-primary">Sign in</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/utils/password_validator.js' %}"></script>
+{% endblock %}
