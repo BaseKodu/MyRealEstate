@@ -9,13 +9,7 @@
 
 <div class="card w-full bg-base-100 shadow-xl">
     <div class="card-body">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-{{ message.tags }}{% endif %} mb-4">
-                    <span>{{ message }}</span>
-                </div>
-            {% endfor %}
-        {% endif %}
+        
 
         <form method="post" class="space-y-4">
             {% csrf_token %}

@@ -30,6 +30,8 @@ module.exports = {
          * JS: If you use Tailwind CSS in JavaScript, uncomment the following lines and make sure
          * patterns match your project structure.
          */
+        '../../../static/js/components/**/*.js',  // Adjust path based on your structure
+        '../../../static/js/**/*.js',            // Include all JS files if needed
         /* JS 1: Ignore any JavaScript in node_modules folder. */
         // '!../../**/node_modules',
         /* JS 2: Process all JavaScript files in the project. */
@@ -40,6 +42,26 @@ module.exports = {
          * and make sure the pattern below matches your project structure.
          */
         // '../../**/*.py'
+    ],
+
+    safelist: [
+        // Classes that are dynamically created
+        'fixed',
+        'top-4',
+        'right-4',
+        'z-50',
+        'flex',
+        'flex-col',
+        'gap-2',
+        'shadow-lg',
+        'transition-all',
+        'duration-300',
+        'ease-in-out',
+        // Alert variations
+        'alert-success',
+        'alert-error',
+        'alert-warning',
+        'alert-info',
     ],
     theme: {
         extend: {},
@@ -58,5 +80,6 @@ module.exports = {
     daisyui: {
         themes: ["business", "nord"],
     },
+
 
 }
