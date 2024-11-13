@@ -7,7 +7,9 @@
         {% endif %}
     </label>
     
-    {{ field }}
+    <div class="{% if field.errors %}input-error{% endif %}">
+        {{ field }}
+    </div>
     
     {% if field.help_text %}
     <label class="label">

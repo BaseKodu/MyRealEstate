@@ -9,6 +9,13 @@ class PasswordValidator {
             return;
         }
         
+        // Create error message element for password1
+        this.errorMessage = document.createElement('label');
+        this.errorMessage.className = 'label';
+        this.errorMessage.innerHTML = '<span class="label-text-alt text-error">Passwords do not match</span>';
+        this.password1.parentNode.appendChild(this.errorMessage);
+        this.errorMessage.style.display = 'none';
+        
         // Add event listeners to both password fields
         this.password2.addEventListener('input', () => this.validateMatch());
     }
@@ -18,15 +25,17 @@ class PasswordValidator {
         const password2Value = this.password2.value;
         
         if (password2Value === '') {
+            this.errorMessage.style.display = 'none';
             return;
         }
 
         if (password1Value !== password2Value) {
-        window.toaster.show('Passwords do not match', 'error');
             this.password2.classList.add('input-error');
+            this.errorMessage.style.display = 'block';
             return false;
         } else {
             this.password2.classList.remove('input-error');
+            this.errorMessage.style.display = 'none';
             return true;
         }
     }

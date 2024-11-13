@@ -17,9 +17,6 @@ class RegisterView(CreateView):
         return response
     
     def form_invalid(self, form):
-        for field in form.errors:
-            for error in form.errors[field]:
-                messages.error(self.request, f"{field}: {error}")
         return super().form_invalid(form)
     
     def dispatch(self, request, *args, **kwargs):
