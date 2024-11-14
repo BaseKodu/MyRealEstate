@@ -30,20 +30,30 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+]
+
+THIRD_PARTY_APPS = [
+    'tailwind',
+    'django_browser_reload',
+]
+
+LOCAL_APPS = [
     'myrealestate.accounts',
     'myrealestate.common',
     'myrealestate.org',
-    'tailwind',
     'myrealestate.theme',
-    'django_browser_reload',
+    'myrealestate.companies',
 ]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
 
 TAILWIND_APP_NAME = 'myrealestate.theme'
 
