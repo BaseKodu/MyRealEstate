@@ -4,6 +4,7 @@ from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
+from django.contrib.auth import logout
 
 # Create your views here.
 class RegisterView(CreateView):
@@ -21,16 +22,19 @@ class RegisterView(CreateView):
     
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('home')
+            return redirect('false-home')
         return super().dispatch(request, *args, **kwargs)
     
     
 class CustomLoginView(LoginView):
     form_class = CustomAuthenticationForm
     template_name = 'accounts/login.html'
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('false-home')
     
     def form_invalid(self, form):
         messages.error(self.request, 'Invalid username or password')
         return super().form_invalid(form)
     
+def logout_view(request):
+    logout(request)
+    return redirect('accounts:login')

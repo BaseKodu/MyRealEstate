@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from common.models import BaseModel
+from myrealestate.common.models import BaseModel
 
 # Create your models here.
+
+
 class Company(BaseModel):
     name = models.CharField(max_length=255, verbose_name=_("Company Name"))
     contact_email = models.EmailField(verbose_name=_("Contact Email"))
