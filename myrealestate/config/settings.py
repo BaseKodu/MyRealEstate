@@ -47,9 +47,9 @@ THIRD_PARTY_APPS = [
 PROJECT_APPS = [
     'myrealestate.accounts',
     'myrealestate.common',
-    'myrealestate.org',
     'myrealestate.theme',
     'myrealestate.companies',
+    'myrealestate.properties'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
