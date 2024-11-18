@@ -1,4 +1,3 @@
-# forms.py
 from django import forms
 
 class DaisyFormMixin:
@@ -22,6 +21,17 @@ class DaisyFormMixin:
                 base_classes = ['textarea textarea-bordered w-full']
             elif isinstance(field.widget, forms.RadioSelect):
                 base_classes = ['radio radio-primary']
+            elif isinstance(field.widget, forms.FileInput):
+                base_classes = ['file-input file-input-bordered w-full']
+            elif isinstance(field.widget, forms.DateInput):
+                base_classes = ['input input-bordered w-full']
+                field.widget.attrs['type'] = 'date'
+            elif isinstance(field.widget, forms.TimeInput):
+                base_classes = ['input input-bordered w-full']
+                field.widget.attrs['type'] = 'time'
+            elif isinstance(field.widget, forms.DateTimeInput):
+                base_classes = ['input input-bordered w-full']
+                field.widget.attrs['type'] = 'datetime-local'
             
             # Add size classes if specified
             if hasattr(field, 'size'):
@@ -34,12 +44,21 @@ class DaisyFormMixin:
             if hasattr(field, 'errors') and field.errors:
                 base_classes.append('input-error')
             
+            # Add disabled class if field is disabled
+            if field.widget.attrs.get('disabled'):
+                base_classes.append('input-disabled')
+            
             # Join classes and set on widget
             field.widget.attrs['class'] = ' '.join(base_classes)
             
             # Add placeholder if not present
-            if not field.widget.attrs.get('placeholder') and not isinstance(field.widget, (forms.CheckboxInput, forms.RadioSelect)):
+            if not field.widget.attrs.get('placeholder') and not isinstance(
+                field.widget, (forms.CheckboxInput, forms.RadioSelect, forms.FileInput)
+            ):
                 field.widget.attrs['placeholder'] = field.label or field_name.title()
+
+# Rest of your classes remain the same...
+
 
 class BaseForm(DaisyFormMixin, forms.Form):
     """Base form with DaisyUI styling"""

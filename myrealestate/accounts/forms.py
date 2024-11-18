@@ -4,10 +4,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 from .models import User
 from django.utils.translation import gettext_lazy as _
-from myrealestate.common.forms import DaisyFormMixin
-
-
-class CustomUserCreationForm(DaisyFormMixin, UserCreationForm):
+from myrealestate.common.forms import BaseModelForm, BaseForm
+from myrealestate.companies.models import Company
+from .models import UserTypeEnums
+class CustomUserCreationForm(BaseModelForm, UserCreationForm):
     email = forms.EmailField(
         label=_("Email"),
         max_length=254,
@@ -41,6 +41,14 @@ class CustomUserCreationForm(DaisyFormMixin, UserCreationForm):
             'autocomplete': 'new-password'
         })
     )
+    
+    company_name = forms.CharField(
+        label=_("Company Name"),
+        max_length=255,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Enter your company name',
+        })
+    )
 
     class Meta:
         model = User
@@ -57,8 +65,22 @@ class CustomUserCreationForm(DaisyFormMixin, UserCreationForm):
         if User.objects.filter(username=username).exists():
             raise ValidationError(_("This username is already taken."))
         return username
+    
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password1'])
 
-class CustomAuthenticationForm(DaisyFormMixin, AuthenticationForm):
+        if commit:
+            user.save()
+            company_name = self.cleaned_data['company_name']
+            company = Company.objects.create(
+                name=company_name,
+            )
+            user.companies.add(company, through_defaults={'access_level': UserTypeEnums.COMPANY_OWNER})
+        return user
+
+class CustomAuthenticationForm(BaseForm, AuthenticationForm):
     username = forms.CharField(
         label=_("Email or Username"),
         widget=forms.TextInput(attrs={
@@ -81,3 +103,6 @@ class CustomAuthenticationForm(DaisyFormMixin, AuthenticationForm):
         ),
         'inactive': _("This account is inactive."),
     }
+    
+    
+    
