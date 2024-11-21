@@ -1,0 +1,42 @@
+{% load tailwind_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="business">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}{% endblock %}</title>
+    {% tailwind_css %}
+</head>
+<body>
+    <div class="drawer">
+        <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" />
+        
+        <!-- Main content wrapper -->
+        <div class="drawer-content flex flex-col min-h-screen">
+            {% include 'partials/navigation/topbar.html' %}
+            
+            <!-- Main content -->
+            <main class="flex-1 p-4 bg-base-200">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+
+        {% include 'partials/navigation/sidebar.html' %}
+    </div>
+
+    <script src="{% static 'js/components/toaster.js' %}"></script>
+    {% if messages %}
+        <script>
+            {% for message in messages %}
+                window.toaster.show(
+                    "{{ message|escapejs }}",
+                    "{{ message.tags|default:'info'|escapejs }}"
+                );
+            {% endfor %}
+        </script>
+    {% endif %}
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

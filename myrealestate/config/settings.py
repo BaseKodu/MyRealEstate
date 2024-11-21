@@ -71,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_browser_reload.middleware.BrowserReloadMiddleware",
+    'myrealestate.config.middleware.CompanyMiddleware',
 ]
 
 ROOT_URLCONF = 'myrealestate.config.urls'
@@ -86,6 +87,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'myrealestate.companies.context_processors.company_context',
             ],
         },
     },
@@ -162,3 +164,5 @@ AUTHENTICATION_BACKENDS = [
     'myrealestate.accounts.backends.EmailOrUsernameModelBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+LOGIN_REDIRECT_URL = '/home/'
