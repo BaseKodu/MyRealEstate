@@ -22,14 +22,14 @@ class RegisterView(CreateView):
     
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('false-home')
+            return redirect('home')
         return super().dispatch(request, *args, **kwargs)
     
     
 class CustomLoginView(LoginView):
     form_class = CustomAuthenticationForm
     template_name = 'accounts/login.html'
-    success_url = reverse_lazy('false-home')
+    success_url = reverse_lazy('home')
     
     def form_invalid(self, form):
         messages.error(self.request, 'Invalid username or password')

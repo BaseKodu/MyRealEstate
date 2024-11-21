@@ -23,6 +23,7 @@
     <!-- Company Selector -->
     <div class="flex-none mr-2">
         <div class="dropdown dropdown-end">
+            {% if current_company %}
             <label tabindex="0" class="btn btn-ghost">
                 <span class="mr-2">{{ current_company.name }}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -32,12 +33,14 @@
             <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-52">
                 {% for company in companies %}
                 <li>
-                    <a href="#" class="{% if company.id == current_company.id %}active{% endif %}">
+                    <a href="#" 
+                       class="{% if company.id == current_company.id %}active{% endif %}">
                         {{ company.name }}
                     </a>
                 </li>
                 {% endfor %}
             </ul>
+            {% endif %}
         </div>
     </div>
 
