@@ -162,3 +162,5 @@ AUTHENTICATION_BACKENDS = [
     'myrealestate.accounts.backends.EmailOrUsernameModelBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+LOGIN_REDIRECT_URL = '/false-home/'
