@@ -1,0 +1,33 @@
+{% extends "common/list.html" %}
+
+{% block table_headers %}
+<th>Name</th>
+<th>Type</th>
+<th>Total Buildings</th>
+{% endblock %}
+
+{% block table_body %}
+{% for estate in object_list %}
+<tr>
+    <td>{{ estate.name }}</td>
+    <td>{{ estate.get_estate_type_display }}</td>
+    <td>{{ estate.total_buildings }}</td>
+    {% if can_edit or can_delete %}
+    <td class="flex gap-2">
+        {% if can_edit %}
+        <a href="#" 
+           class="btn btn-square btn-sm btn-ghost">
+            ✎
+        </a>
+        {% endif %}
+        {% if can_delete %}
+        <button class="btn btn-square btn-sm btn-ghost delete-btn"
+                data-url="#">
+            ✕
+        </button>
+        {% endif %}
+    </td>
+    {% endif %}
+</tr>
+{% endfor %}
+{% endblock %}
