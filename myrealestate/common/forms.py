@@ -1,5 +1,5 @@
 from django import forms
-
+from icecream import ic
 class DaisyFormMixin:
     """Mixin to add DaisyUI styling to form fields"""
     def __init__(self, *args, **kwargs):
@@ -66,7 +66,14 @@ class BaseForm(DaisyFormMixin, forms.Form):
 
 class BaseModelForm(DaisyFormMixin, forms.ModelForm):
     """Base model form with DaisyUI styling"""
-    pass
+    def __init__(self, *args, **kwargs):
+        self.company = kwargs.pop('company', None)
+        super().__init__(*args, **kwargs)
+        self.style_fields()
+
+    def save(self, commit=True):
+        """Standard save without company logic"""
+        return super().save(commit)
 
 class ButtonStyles:
     """Helper class for DaisyUI button styling"""

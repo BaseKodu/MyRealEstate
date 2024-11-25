@@ -23,4 +23,5 @@ urlpatterns = [
     path('', include('myrealestate.accounts.urls', namespace='accounts')),
     path("__reload__/", include("django_browser_reload.urls")),
     path('home/', home, name='home'),
+    path('properties/', include('myrealestate.properties.urls', namespace='properties')),
 ]

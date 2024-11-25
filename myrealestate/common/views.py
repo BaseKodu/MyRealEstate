@@ -7,6 +7,9 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from .utils import getCurrentCompany
+from .mixins import CompanyRequiredMixin
+from icecream import ic
 
 class TitleMixin:
     """Mixin to add title to context"""
@@ -21,7 +24,19 @@ class TitleMixin:
         context["title"] = self.get_title()
         return context
 
-class BaseListView(LoginRequiredMixin, TitleMixin, ListView):
+class CompanyViewMixin:
+    """Mixin to handle company-specific operations"""
+    def get_company(self):
+        return getCurrentCompany(self.request)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Filter by company if the model has company field
+        if hasattr(self.model, 'company'):
+            return queryset.filter(company=self.get_company())
+        return queryset
+
+class BaseListView(CompanyRequiredMixin, CompanyViewMixin, TitleMixin, ListView):
     """Base list view with search and pagination"""
     template_name = "commons/list.html"
     paginate_by = 10
@@ -29,9 +44,10 @@ class BaseListView(LoginRequiredMixin, TitleMixin, ListView):
     ordering = "-created_at"  # Default ordering
     
     def get_queryset(self):
+        # First get company-filtered queryset
         queryset = super().get_queryset()
         
-        # Apply search if query exists
+        # Then apply search if query exists
         search_query = self.request.GET.get("q")
         if search_query and self.search_fields:
             q_objects = Q()
@@ -67,28 +83,32 @@ class BaseListView(LoginRequiredMixin, TitleMixin, ListView):
         """Check if user can delete objects"""
         return True
 
-class BaseCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class BaseCreateView(CompanyRequiredMixin, CompanyViewMixin, TitleMixin, CreateView):
     """Base create view"""
-    template_name = "commons/form.html"
+    template_name = "common/form.html"
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["is_create"] = True
-        return context
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['company'] = self.get_company()
+        return kwargs
+    
+    def form_valid(self, form):
+        """Handle form submission"""
+        response = super().form_valid(form)
+        messages.success(self.request, f"{self.model._meta.verbose_name} created successfully.")
+        return response
+    
+    def post(self, request, *args, **kwargs):
+        ic("POST received:", request.POST)  # Debug POST data
+        return super().post(request, *args, **kwargs)
     
     def get_success_url(self):
         """Get URL to redirect to after successful creation"""
         if hasattr(self, 'success_url') and self.success_url:
             return self.success_url
         return reverse(f"{self.model._meta.app_label}:{self.model._meta.model_name}_list")
-    
-    def form_valid(self, form):
-        """Add success message on valid form submission"""
-        response = super().form_valid(form)
-        messages.success(self.request, f"{self.model._meta.verbose_name} created successfully.")
-        return response
 
-class BaseUpdateView(LoginRequiredMixin, TitleMixin, UpdateView):
+class BaseUpdateView(CompanyRequiredMixin, CompanyViewMixin, TitleMixin, UpdateView):
     """Base update view"""
     template_name = "commons/form.html"
     
@@ -109,7 +129,7 @@ class BaseUpdateView(LoginRequiredMixin, TitleMixin, UpdateView):
         messages.success(self.request, f"{self.model._meta.verbose_name} updated successfully.")
         return response
 
-class DeleteViewMixin:
+class DeleteViewMixin(CompanyViewMixin):
     """Mixin to handle AJAX delete requests"""
     
     def delete(self, request, *args, **kwargs):
