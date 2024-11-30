@@ -74,10 +74,21 @@ class Building(BaseModel):
        ]
 
     def clean(self):
+        pass # validation should be handled once we have a pk for the building
         # Remove any validation that assumes building company must match estate company
-        if self.building_type == BuildingTypeEnums.SINGLE_UNIT:
-            if self.units.count() > 1:
-                raise ValidationError("Single unit buildings can only have one unit")
+        #if self.building_type == BuildingTypeEnums.SINGLE_UNIT:
+        #    if self.units.count() > 1:
+        #        raise ValidationError("Single unit buildings can only have one unit")
+
+    def save(self, *args, **kwargs):
+        '''
+        Ensure that when object is created and unit type is multi unit, a unit is created
+        '''
+        instance_exists = Building.objects.filter(pk=self.pk).exists()
+        super().save(*args, **kwargs)
+        if not instance_exists and self.building_type == BuildingTypeEnums.SINGLE_UNIT:
+            Unit.objects.create(building=self, company=self.company, number=1, unit_type=UnitTypeEnums.HOUSE)
+
 
     @property
     def is_standalone(self):
