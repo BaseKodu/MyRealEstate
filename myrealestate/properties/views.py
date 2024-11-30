@@ -28,6 +28,12 @@ class EstateListView(BaseListView):
     context_object_name = "estates"
     title = "Estate List"
 
+    def get_queryset(self):
+        # Get the company-filtered queryset from parent class
+        queryset = super().get_queryset()
+        # Add managing=True filter
+        return queryset.filter(managing=True)
+
 
 class EstateDeleteView(DeleteViewMixin, View):
     model = Estate
