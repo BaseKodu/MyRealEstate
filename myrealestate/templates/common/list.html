@@ -1,5 +1,5 @@
 {% extends "user_base.html" %}
-
+{% load static %}
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <div class="card bg-base-100 shadow-xl">
@@ -50,17 +50,39 @@
                     
                     <!-- Table Body -->
                     <tbody>
-                        {% block table_body %}
-                        <!-- Override this block to define table rows -->
-                        {% endblock %}
-                        
-                        {% if not object_list %}
-                        <tr>
-                            <td colspan="100%" class="text-center py-4">
-                                No items found.
-                            </td>
-                        </tr>
-                        {% endif %}
+                        {% for object in object_list %}
+                            <tr>
+                                {% block table_row %}
+                                <!-- Override this block to define table columns -->
+                                {% endblock %}
+                                
+                                {% if can_edit or can_delete %}
+                                    {% block table_actions %}
+                                    <td class="flex gap-2">
+                                        {% if can_edit %}
+                                        <a href="#" 
+                                           class="btn btn-sm">
+                                           ✎
+                                        </a>
+                                        {% endif %}
+                                        
+                                        {% if can_delete %}
+                                        <button class="btn btn-sm btn-error delete-btn"
+                                                {# data-url="{% url app_name|add:':'|add:model_name|add:'-delete' object.pk %}"> #}
+                                                ✕
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                    {% endblock %}
+                                {% endif %}
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="100%" class="text-center py-4">
+                                    No items found.
+                                </td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -111,45 +133,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    /*
-    // Handle delete button clicks
-
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('delete-btn')) {
-            e.preventDefault();
-            const url = e.target.getAttribute('data-url');
-            const modal = document.getElementById('delete-modal');
-            
-            // Fetch delete confirmation content
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('delete-modal-content').innerHTML = data.html;
-                    modal.showModal();
-                });
-        }
-    });
-
-    // Handle delete form submission
-    document.addEventListener('submit', function(e) {
-        if (e.target.classList.contains('delete-form')) {
-            e.preventDefault();
-            const form = e.target;
-            
-            fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    window.location.href = data.redirect_url;
-                }
-            });
-        }
-    });
-</script>
+<script src="{% static 'js/utils/object-deletion.js' %}"></script>
 {% endblock %}

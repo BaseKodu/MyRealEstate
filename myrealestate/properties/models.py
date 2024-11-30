@@ -46,11 +46,12 @@ class BuildingManager(models.Manager):
 
 class Estate(BaseModel):
     name = models.CharField(max_length=255)
-    address = models.TextField()
+    address = models.CharField(max_length=500, null=True, blank=True)
     company = models.ForeignKey('companies.Company', on_delete=models.CASCADE, related_name="owned_estates")
     total_buildings = models.IntegerField(default=0)
     amenities = models.JSONField(null=True, blank=True)
     estate_type = models.CharField(max_length=1, choices=EstateTypeEnums.choices, default=EstateTypeEnums.RESIDENTIAL)
+    managing = models.BooleanField(default=False, help_text="Select if you or your company is managing this estate")
 
     def __str__(self):
         return self.name
@@ -60,7 +61,8 @@ class Building(BaseModel):
     company = models.ForeignKey('companies.Company', on_delete=models.CASCADE, related_name="owned_buildings")
     name = models.CharField(max_length=255)
     building_type = models.CharField(max_length=1, choices=BuildingTypeEnums.choices, default=BuildingTypeEnums.MULTI_UNIT)
-    address = models.TextField()
+    address = models.CharField(max_length=500, null=True, blank=True)
+    managing = models.BooleanField(default=False, help_text="Select if you or your company is managing this building")
 
     objects = BuildingManager()
 
@@ -224,3 +226,9 @@ class SubUnit(BaseModel):
 
    def __str__(self):
        return f"SubUnit {self.number} in {self.parent_unit}"
+   
+
+
+
+# TODO: Address model. Keep addresses simple for now. We are gonna intergrate with google maps api
+#class Address(BaseModel):

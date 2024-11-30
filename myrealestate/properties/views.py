@@ -1,9 +1,10 @@
-from django.shortcuts import render
-from myrealestate.common.views import BaseListView, BaseCreateView
+from django.shortcuts import render, redirect
+from myrealestate.common.views import BaseListView, BaseCreateView, DeleteViewMixin
 from myrealestate.properties.models import Estate
 from myrealestate.properties.forms import EstateForm
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib import messages
+from django.views import View
 
 # Create your views here.
 
@@ -28,3 +29,11 @@ class EstateListView(BaseListView):
     template_name = "properties/estate_list.html"
     context_object_name = "estates"
     title = "Estate List"
+
+
+
+
+class EstateDeleteView(DeleteViewMixin, View):
+    model = Estate
+    def get_success_url(self):
+        return reverse('properties:estate-list')

@@ -68,6 +68,8 @@ class BaseListView(CompanyRequiredMixin, CompanyViewMixin, TitleMixin, ListView)
             "can_add": self.has_add_permission(),
             "can_edit": self.has_change_permission(),
             "can_delete": self.has_delete_permission(),
+            'app_name': self.model._meta.app_label,
+            'model_name': self.model._meta.model_name,
         })
         return context
     

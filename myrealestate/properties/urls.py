@@ -1,10 +1,13 @@
 from django.urls import path
-from myrealestate.properties.views import EstateCreateView, EstateListView
+from myrealestate.properties.views import EstateCreateView, EstateListView, EstateDeleteView
 
 
 app_name = "properties"
 
 urlpatterns = [
-    path("new/", EstateCreateView.as_view(), name="create-estate"),
-    path("", EstateListView.as_view(), name="estate-list"),
+    # Estates
+    path("estates/new/", EstateCreateView.as_view(), name="create-estate"),
+    path("estates/", EstateListView.as_view(), name="estate-list"),
+    path('estates/<int:pk>/delete/', EstateDeleteView.as_view(), name='delete-estate'),
+
 ]
