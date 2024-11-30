@@ -1,5 +1,5 @@
 from django.urls import path
-from myrealestate.properties.views import EstateCreateView, EstateListView, EstateDeleteView, BuildingCreateView, BuildingListView
+from myrealestate.properties.views import EstateCreateView, EstateListView, EstateDeleteView, BuildingCreateView, BuildingListView, UnitCreateView, UnitListView
 
 
 app_name = "properties"
@@ -14,4 +14,8 @@ urlpatterns = [
     path("buildings/new/", BuildingCreateView.as_view(), name="create-building"),
     path("buildings/", BuildingListView.as_view(), name="building-list"),
     #path('buildings/<int:pk>/delete/', BuildingDeleteView.as_view(), name='delete-building'),
+
+    # Units
+    path("units/new/", UnitCreateView.as_view(), name="create-unit"),
+    path("units/", UnitListView.as_view(), name="unit-list"),
 ]

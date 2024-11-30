@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from myrealestate.common.views import BaseListView, BaseCreateView, DeleteViewMixin
-from myrealestate.properties.models import Estate, Building
-from myrealestate.properties.forms import EstateForm, BuildingForm
+from myrealestate.properties.models import Estate, Building, Unit
+from myrealestate.properties.forms import EstateForm, BuildingForm, UnitForm
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.views import View
@@ -62,3 +62,25 @@ class BuildingListView(BaseListView):
     template_name = "properties/building_list.html"
     context_object_name = "buildings"
     title = "Building List"
+
+
+class UnitCreateView(BaseCreateView):
+    form_class = UnitForm
+    success_url = reverse_lazy("home")
+    title = "Create New Unit"
+
+    def form_valid(self, form):
+        # TODO: Ensure that save logic for objects with company attribute is handled in a base view or base form in order to keep up with DRY principle
+        """Handle form submission"""
+        self.object = form.save(commit=False)
+        self.object.company = self.get_company()
+        self.object.save()
+        messages.success(self.request, f"Unit created successfully.")
+        return super(BaseCreateView, self).form_valid(form)
+
+
+class UnitListView(BaseListView):
+    model = Unit
+    template_name = "properties/unit_list.html"
+    context_object_name = "units"
+    title = "Unit List"
