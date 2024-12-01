@@ -1,0 +1,28 @@
+[run]
+source = myrealestate
+omit =
+    */migrations/*
+    */tests/*
+    */admin.py
+    */apps.py
+    */urls.py
+    */__init__.py
+    */asgi.py
+    */wsgi.py
+    manage.py
+    */settings.py
+
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __str__
+    def __repr__
+    raise NotImplementedError
+    if settings.DEBUG
+    pass
+    raise ImportError
+    if __name__ == .__main__.:
+
+[html]
+directory = coverage_html
