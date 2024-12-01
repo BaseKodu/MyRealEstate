@@ -4,6 +4,8 @@ from django.utils.translation import gettext_lazy as _
 from myrealestate.companies.models import Company
 from myrealestate.common.models import BaseModel
 from django.core.exceptions import ValidationError
+
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:

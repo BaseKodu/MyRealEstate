@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from myrealestate.common.forms import BaseModelForm, BaseForm
 from myrealestate.companies.models import Company
 from .models import UserTypeEnums
+
+
 class CustomUserCreationForm(BaseModelForm, UserCreationForm):
     email = forms.EmailField(
         label=_("Email"),
