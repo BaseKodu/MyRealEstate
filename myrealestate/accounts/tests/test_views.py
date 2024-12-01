@@ -149,6 +149,33 @@ class TestCustomLoginView(TestCase):
         response = self.client.post(self.login_url, self.valid_credentials)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.wsgi_request.user.is_authenticated)
+    
+    # In TestCustomLoginView class, add this new test:
+    def test_login_sets_company_session(self):
+        """Test that logging in sets the company session data"""
+        # Create a company and associate it with the user
+        company = CompanyFactory(
+            name="Test Company",
+            contact_email="company@test.com",
+            contact_phone="1234567890"
+        )
+        self.user.companies.add(company, through_defaults={'access_level': UserTypeEnums.COMPANY_OWNER})
+        
+        response = self.client.post(self.login_url, self.valid_credentials, follow=True)
+        
+        # Check if company is in session
+        self.assertIn('company', self.client.session)
+        self.assertIn('current_company_id', self.client.session)
+        
+        # Verify session data
+        company_data = self.client.session['company']
+        self.assertEqual(company_data['id'], company.id)
+        self.assertEqual(company_data['name'], company.name)
+        self.assertEqual(company_data['contact_email'], company.contact_email)
+        self.assertEqual(company_data['contact_phone'], company.contact_phone)
+        
+        # Verify current company ID
+        self.assertEqual(self.client.session['current_company_id'], company.id)
 
 
 class TestLogoutView(TestCase):
