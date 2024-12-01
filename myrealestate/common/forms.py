@@ -103,3 +103,22 @@ class ButtonStyles:
             classes.extend(additional_classes)
             
         return ' '.join(classes)
+
+
+class BasePatchForm(BaseModelForm):
+    """Base form for PATCH requests with DaisyUI styling"""
+    _method = forms.CharField(
+        widget=forms.HiddenInput(),
+        initial='PATCH',
+        required=False
+    )
+
+    class Meta:
+        model = None
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ensure _method is always first in field order
+        field_order = ['_method'] + [f for f in self.fields if f != '_method']
+        self.order_fields(field_order)
