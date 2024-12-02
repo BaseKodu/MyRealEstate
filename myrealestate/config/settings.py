@@ -88,6 +88,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'myrealestate.companies.context_processors.company_context',
+                'myrealestate.common.context_processor.storage_status',
             ],
         },
     },
@@ -166,3 +167,31 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_REDIRECT_URL = '/home/'
+
+
+
+# minio, s3 and storage settings
+
+# settings.py
+
+# MinIO settings
+MINIO_ENDPOINT = 'localhost:9000'
+MINIO_ACCESS_KEY = 'admin'
+MINIO_SECRET_KEY = 'adminpassword'
+MINIO_BUCKET_NAME = 'mre-app-bucket'
+MINIO_SECURE = False if DEVELOPMENT else True  # Set to True if using HTTPS
+
+# Django Storage Settings
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = MINIO_ACCESS_KEY
+AWS_SECRET_ACCESS_KEY = MINIO_SECRET_KEY
+AWS_STORAGE_BUCKET_NAME = MINIO_BUCKET_NAME
+AWS_S3_ENDPOINT_URL = f'http://{MINIO_ENDPOINT}'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = True
+AWS_S3_FILE_OVERWRITE = False
+
+MAX_IMAGE_COUNT = 50
