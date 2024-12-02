@@ -1,5 +1,8 @@
 from django import forms
 from icecream import ic
+from django.contrib.contenttypes.models import ContentType
+from properties.models import PropertyImage
+
 class DaisyFormMixin:
     """Mixin to add DaisyUI styling to form fields"""
     def __init__(self, *args, **kwargs):
@@ -122,3 +125,36 @@ class BasePatchForm(BaseModelForm):
         # Ensure _method is always first in field order
         field_order = ['_method'] + [f for f in self.fields if f != '_method']
         self.order_fields(field_order)
+
+
+class PropertyImageForm(BaseModelForm):
+    class Meta:
+        model = PropertyImage
+        fields = ['image', 'caption']
+
+    def __init__(self, *args, property_object=None, **kwargs):
+        self.property_object = property_object
+        super().__init__(*args, **kwargs)
+        
+        # Customize file input
+        self.fields['image'].widget.attrs.update({
+            'class': 'hidden',  # Hidden because we'll use custom UI
+            'data-max-files': '50',
+            'data-max-size': '5',  # in MB
+            'accept': 'image/*'
+        })
+        
+        if property_object:
+            self.fields['image'].widget.attrs.update({
+                'data-property-type': property_object._meta.model_name,
+                'data-property-id': property_object.id
+            })
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.property_object:
+            instance.content_type = ContentType.objects.get_for_model(self.property_object)
+            instance.object_id = self.property_object.id
+        if commit:
+            instance.save()
+        return instance

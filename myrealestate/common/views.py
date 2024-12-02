@@ -1,15 +1,19 @@
-# commons/views.py
 from typing import Any, Dict
 from django.contrib import messages
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import ListView, CreateView, UpdateView
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import Http404, JsonResponse, HttpResponseBadRequest
 from django.template.loader import render_to_string
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from .utils import getCurrentCompany
 from .mixins import CompanyRequiredMixin
 from icecream import ic
+from django.contrib.contenttypes.models import ContentType
+from .models import PropertyImage, Estate, Building, Unit, SubUnit
+from .forms import PropertyImageForm
+
 
 class TitleMixin:
     """Mixin to add title to context"""
@@ -201,3 +205,75 @@ class BaseUpdateView(CompanyRequiredMixin, CompanyViewMixin, TitleMixin, PatchHa
         response = super().form_valid(form)
         messages.success(self.request, f"{self.model._meta.verbose_name} updated successfully.")
         return response
+    
+
+
+class PropertyImageUploadView(CompanyRequiredMixin, CompanyViewMixin, TitleMixin, CreateView):
+    model = PropertyImage
+    form_class = PropertyImageForm
+    template_name = 'properties/image_upload.html'
+    title = "Upload Images"
+
+    def get_property_object(self):
+        property_type = self.kwargs.get('property_type')
+        property_id = self.kwargs.get('property_id')
+        
+        model_map = {
+            'estate': Estate,
+            'building': Building,
+            'unit': Unit,
+            'subunit': SubUnit
+        }
+        
+        Model = model_map.get(property_type)
+        if not Model:
+            raise Http404("Invalid property type")
+            
+        return get_object_or_404(
+            Model.objects.filter(company=self.get_company()), 
+            pk=property_id
+        )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['property_object'] = self.get_property_object()
+        kwargs['company'] = self.get_company()
+        return kwargs
+
+    def form_valid(self, form):
+        try:
+            self.object = form.save()
+            return JsonResponse({
+                'status': 'success',
+                'image_id': self.object.id,
+                'url': self.object.image.url,
+                'caption': self.object.caption
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+
+class PropertyImageDeleteView(CompanyRequiredMixin, DeleteViewMixin, DeleteView):
+    model = PropertyImage
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            property_object__company=self.get_company()
+        )
+
+class PropertyImageSetPrimaryView(CompanyRequiredMixin, CompanyViewMixin, UpdateView):
+    model = PropertyImage
+    http_method_names = ['post']
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            property_object__company=self.get_company()
+        )
+
+    def post(self, request, *args, **kwargs):
+        image = self.get_object()
+        image.is_primary = True
+        image.save()
+        return JsonResponse({'status': 'success'})
