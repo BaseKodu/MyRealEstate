@@ -26,17 +26,19 @@
         {% include 'partials/navigation/sidebar.html' %}
     </div>
 
-    <script src="{% static 'js/components/toaster.js' %}"></script>
-    {% if messages %}
-        <script>
+    <script type="module">
+        import { toaster } from "{% static 'js/components/toaster.js' %}";
+        
+        // Handle Django messages
+        {% if messages %}
             {% for message in messages %}
-                window.toaster.show(
+                toaster.show(
                     "{{ message|escapejs }}",
                     "{{ message.tags|default:'info'|escapejs }}"
                 );
             {% endfor %}
-        </script>
-    {% endif %}
+        {% endif %}
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
