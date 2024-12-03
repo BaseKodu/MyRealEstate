@@ -55,4 +55,5 @@ export class Toaster {
 }
 
 // Create and export a singleton instance
-export const toaster = new Toaster();
+const toaster = new Toaster();
+export { toaster }; 

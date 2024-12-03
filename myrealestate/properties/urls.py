@@ -1,5 +1,5 @@
 from django.urls import path
-from myrealestate.properties.views import EstateCreateView, EstateListView, EstateDeleteView, BuildingCreateView, BuildingListView, BuildingUpdateView, UnitCreateView, UnitListView, UnitUpdateView, EstateUpdateView
+from myrealestate.properties.views import EstateCreateView, EstateListView, EstateDeleteView, BuildingCreateView, BuildingListView, BuildingUpdateView, UnitCreateView, UnitListView, UnitUpdateView, EstateUpdateView, PropertyImageUploadView, PropertyImageDeleteView, PropertyImageSetPrimaryView
 
 
 app_name = "properties"
@@ -21,4 +21,22 @@ urlpatterns = [
     path("units/new/", UnitCreateView.as_view(), name="create-unit"),
     path("units/", UnitListView.as_view(), name="unit-list"),
     path('units/<int:pk>/update/', UnitUpdateView.as_view(), name='update-unit'),
+
+
+    # Image handling URLs
+    path(
+        '<str:property_type>/<int:property_id>/upload-images/',
+        PropertyImageUploadView.as_view(),
+        name='property-image-upload'
+    ),
+    path(
+        'images/<int:pk>/delete/',
+        PropertyImageDeleteView.as_view(),
+        name='property-image-delete'
+    ),
+    path(
+        'images/<int:pk>/set-primary/',
+        PropertyImageSetPrimaryView.as_view(),
+        name='property-image-set-primary'
+    ),
 ]

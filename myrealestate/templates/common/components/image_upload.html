@@ -1,4 +1,4 @@
-<!-- templates/common/components/image_upload.html -->
+{% load static %}
 <div class="divider"></div>
 <h3 class="text-lg font-semibold mb-4">Property Images</h3>
 
@@ -43,3 +43,22 @@
         </div>
     </div>
 </form>
+
+{% block extra_js %}
+<script type="module">
+    import { ImageUploadHandler } from '{% static "js/features/ImageUpload/handler.js" %}';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        new ImageUploadHandler({
+            dropzoneId: 'imageUploadForm',
+            // Use 'estate' directly instead of object|lower
+            uploadUrl: "{% url 'properties:property-image-upload' property_type='estate' property_id=object.id %}",
+            deleteUrl: "{% url 'properties:property-image-delete' pk=0 %}".replace('0', '{id}'),
+            setPrimaryUrl: "{% url 'properties:property-image-set-primary' pk=0 %}".replace('0', '{id}'),
+            maxFiles: 50,
+            maxFileSize: 5,
+            supportedTypes: ['image/jpeg', 'image/png', 'gif']
+        });
+    });
+</script>
+{% endblock %}

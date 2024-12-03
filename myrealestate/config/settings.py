@@ -179,7 +179,7 @@ MINIO_ENDPOINT = 'localhost:9000'
 MINIO_ACCESS_KEY = 'admin'
 MINIO_SECRET_KEY = 'adminpassword'
 MINIO_BUCKET_NAME = 'mre-app-bucket'
-MINIO_SECURE = False if DEVELOPMENT else True  # Set to True if using HTTPS
+MINIO_SECURE = False  # Set to True if using HTTPS
 
 # Django Storage Settings
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
@@ -190,8 +190,11 @@ AWS_S3_ENDPOINT_URL = f'http://{MINIO_ENDPOINT}'
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
-AWS_DEFAULT_ACL = None
-AWS_QUERYSTRING_AUTH = True
+AWS_DEFAULT_ACL = 'public-read'  # Make sure this is set to allow public access
+AWS_QUERYSTRING_AUTH = False     # Set to False to avoid signed URLs
 AWS_S3_FILE_OVERWRITE = False
 
 MAX_IMAGE_COUNT = 50
+
+MEDIA_URL = f'http://{MINIO_ENDPOINT}/{MINIO_BUCKET_NAME}/'
+MEDIA_ROOT = ''  # MEDIA_ROOT is not used when using cloud storage

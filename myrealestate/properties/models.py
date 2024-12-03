@@ -264,28 +264,20 @@ def property_image_path(instance, filename):
     Generate path for property images with structure:
     property_images/company_id/property_type/property_id/filename
     """
-    # Get property type and company ID from the related object
-    property_type = instance.content_type.model
-    
-    # Get company ID based on property type
-    if property_type == 'estate':
-        company_id = instance.property_object.company_id
-    elif property_type == 'building':
-        company_id = instance.property_object.company_id
-    elif property_type == 'unit':
-        company_id = instance.property_object.company_id
-    elif property_type == 'subunit':
-        company_id = instance.property_object.parent_unit.company_id
-    else:
-        raise ValueError("Invalid property type")
-    
-    # Create timestamp-based unique filename
     from datetime import datetime
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     ext = filename.split('.')[-1]
     filename = f"{timestamp}.{ext}"
     
-    return f'property_images/{company_id}/{property_type}/{instance.object_id}/{filename}'
+    # Get company ID and ensure all directories use lowercase
+    company_id = instance.property_object.company.id
+    property_type = instance.content_type.model.lower()
+    
+    # Create the final path
+    final_path = f'property_images/{company_id}/{property_type}/{instance.object_id}/{filename}'
+    
+    print(f"Generated path for upload: {final_path}")  # Debug line
+    return final_path
 
 class PropertyImage(BaseModel):
     """
@@ -300,11 +292,7 @@ class PropertyImage(BaseModel):
     )
     object_id = models.PositiveIntegerField()
     property_object = GenericForeignKey('content_type', 'object_id')
-    
-    image = models.ImageField(
-        upload_to=property_image_path,
-        validators=[validate_file_size]
-    )
+    image = models.ImageField(upload_to=property_image_path, validators=[validate_file_size])
     caption = models.CharField(max_length=200, blank=True)
     is_primary = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
@@ -337,6 +325,7 @@ class PropertyImage(BaseModel):
 
     def save(self, *args, **kwargs):
         """Handle primary image logic"""
+        print(f"Saving image to: {self.image.name}")  # Debug line
         if self.is_primary:
             # Set all other images of this object to not primary
             PropertyImage.objects.filter(
@@ -353,6 +342,7 @@ class PropertyImage(BaseModel):
             self.is_primary = True
             
         super().save(*args, **kwargs)
+        print(f"Image saved. URL: {self.image.url}")  # Debug line
 
     def delete(self, *args, **kwargs):
         """Ensure there's always a primary image if images exist"""
