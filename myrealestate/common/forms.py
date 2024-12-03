@@ -1,7 +1,7 @@
 from django import forms
 from icecream import ic
 from django.contrib.contenttypes.models import ContentType
-from properties.models import PropertyImage
+from myrealestate.properties.models import PropertyImage
 
 class DaisyFormMixin:
     """Mixin to add DaisyUI styling to form fields"""

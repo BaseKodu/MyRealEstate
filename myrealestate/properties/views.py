@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from myrealestate.common.views import BaseListView, BaseCreateView, DeleteViewMixin, BaseUpdateView
+from myrealestate.common.views import BaseListView, BaseCreateView, DeleteViewMixin, BaseUpdateView, PropertyImageHandlerMixin
 from myrealestate.properties.models import Estate, Building, Unit
 from myrealestate.properties.forms import EstateForm, BuildingForm, UnitForm, EstatePatchForm, BuildingPatchForm, UnitPatchForm
 from django.urls import reverse_lazy, reverse
@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.views import View
 
 
-class EstateCreateView(BaseCreateView):
+class EstateCreateView(PropertyImageHandlerMixin, BaseCreateView):
     form_class = EstateForm
     success_url = reverse_lazy("home")
     title = "Create New Estate"
@@ -41,7 +41,7 @@ class EstateDeleteView(DeleteViewMixin, View):
         return reverse('properties:estate-list')
     
 
-class EstateUpdateView(BaseUpdateView):
+class EstateUpdateView(PropertyImageHandlerMixin, BaseUpdateView):
     model = Estate
     form_class = EstatePatchForm
     success_url = reverse_lazy("home")
@@ -52,10 +52,11 @@ class EstateUpdateView(BaseUpdateView):
         return super(BaseUpdateView, self).form_valid(form)
     
 
-class BuildingCreateView(BaseCreateView):
+class BuildingCreateView(PropertyImageHandlerMixin, BaseCreateView):
     form_class = BuildingForm
     success_url = reverse_lazy("home")
     title = "Create New Building"
+    supports_images = True
 
 
     def form_valid(self, form):
@@ -75,18 +76,19 @@ class BuildingListView(BaseListView):
     title = "Building List"
 
 
-class BuildingUpdateView(BaseUpdateView):
+class BuildingUpdateView(PropertyImageHandlerMixin,BaseUpdateView):
     model = Building
     form_class = BuildingPatchForm
     success_url = reverse_lazy("home")
     title = "Update Building"
+    supports_images = True
 
     def form_valid(self, form):
         #messages.success(self.request, f"Building updated successfully.")
         return super(BaseUpdateView, self).form_valid(form)
 
 
-class UnitCreateView(BaseCreateView):
+class UnitCreateView(PropertyImageHandlerMixin, BaseCreateView):
     form_class = UnitForm
     success_url = reverse_lazy("home")
     title = "Create New Unit"
@@ -108,7 +110,7 @@ class UnitListView(BaseListView):
     title = "Unit List"
 
 
-class UnitUpdateView(BaseUpdateView):
+class UnitUpdateView(PropertyImageHandlerMixin,BaseUpdateView):
     model = Unit
     form_class = UnitPatchForm
     success_url = reverse_lazy("home")

@@ -1,3 +1,4 @@
+<!-- templates/common/form.html -->
 {% extends "user_base.html" %}
 
 {% block content %}
@@ -17,7 +18,7 @@
                     {% csrf_token %}
                     
                     {% include "common/components/form.html" with form=form %}
-
+                    
                     <div class="card-actions justify-end mt-6 space-x-2">
                         <a href="{{ view.get_success_url }}" class="btn btn-ghost">
                             Cancel
@@ -27,6 +28,10 @@
                         </button>
                     </div>
                 </form>
+
+                {% if not is_create and view.supports_images %}
+                    {% include "common/components/image_upload.html" %}
+                {% endif %}
             </div>
         </div>
     </div>
