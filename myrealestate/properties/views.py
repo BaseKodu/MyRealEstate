@@ -17,6 +17,7 @@ class EstateCreateView(PropertyImageHandlerMixin, BaseCreateView):
     form_class = EstateForm
     success_url = reverse_lazy("home")
     title = "Create New Estate"
+    supports_images = False
 
     def form_valid(self, form):
         # TODO: Ensure that save logic for objects with company attribute is handled in a base view or base form in order to keep up with DRY principle
@@ -62,7 +63,7 @@ class BuildingCreateView(PropertyImageHandlerMixin, BaseCreateView):
     form_class = BuildingForm
     success_url = reverse_lazy("home")
     title = "Create New Building"
-    supports_images = True
+    supports_images = False
 
 
     def form_valid(self, form):
@@ -98,6 +99,7 @@ class UnitCreateView(PropertyImageHandlerMixin, BaseCreateView):
     form_class = UnitForm
     success_url = reverse_lazy("home")
     title = "Create New Unit"
+    supports_images = False
 
     def form_valid(self, form):
         # TODO: Ensure that save logic for objects with company attribute is handled in a base view or base form in order to keep up with DRY principle
