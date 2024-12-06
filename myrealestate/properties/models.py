@@ -274,19 +274,10 @@ def property_image_path(instance, filename):
     company_id = instance.property_object.company.id
     property_type = instance.content_type.model.lower()
     
-    path = f'property_images/{company_id}/{property_type}/{instance.object_id}/{filename}'
-    
-    logger.debug(f"Generating image path: {path}")
-    logger.debug(f"Content type: {instance.content_type.model}")
-    logger.debug(f"Object ID: {instance.object_id}")
-    
-    # Construct the path including the property_images prefix
-    return f'property_images/{company_id}/{property_type}/{instance.object_id}/{filename}'
+    return f'property_images/{company_id}/{property_type}s/{instance.object_id}/{filename}'
 
 class PropertyImage(BaseModel):
-    """
-    Generic image model that can be associated with Estate, Building, Unit, or SubUnit
-    """
+    """Generic image model that can be associated with Estate, Building, Unit, or SubUnit"""
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -309,7 +300,6 @@ class PropertyImage(BaseModel):
         ]
         ordering = ['order', '-created_at']
         constraints = [
-            # Ensure only one primary image per property object
             models.UniqueConstraint(
                 fields=['content_type', 'object_id', 'is_primary'],
                 condition=models.Q(is_primary=True),
@@ -329,7 +319,6 @@ class PropertyImage(BaseModel):
 
     def save(self, *args, **kwargs):
         """Handle primary image logic"""
-        print(f"Saving image to: {self.image.name}")  # Debug line
         if self.is_primary:
             # Set all other images of this object to not primary
             PropertyImage.objects.filter(
@@ -346,7 +335,6 @@ class PropertyImage(BaseModel):
             self.is_primary = True
             
         super().save(*args, **kwargs)
-        print(f"Image saved. URL: {self.image.url}")  # Debug line
 
     def delete(self, *args, **kwargs):
         """Ensure there's always a primary image if images exist"""

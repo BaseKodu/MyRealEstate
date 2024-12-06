@@ -1,4 +1,4 @@
-from myrealestate.common.views import BaseListView, BaseCreateView, DeleteViewMixin, BaseUpdateView, PropertyImageHandlerMixin
+from myrealestate.common.views import BaseListView, BaseCreateView, DeleteViewMixin, BaseUpdateView, PropertyImageHandlerMixin, CompanyViewMixin
 from myrealestate.properties.models import Estate, Building, Unit
 from myrealestate.properties.forms import EstateForm, BuildingForm, UnitForm, EstatePatchForm, BuildingPatchForm, UnitPatchForm
 from django.urls import reverse_lazy, reverse
@@ -9,6 +9,8 @@ from django.shortcuts import get_object_or_404
 from .models import PropertyImage, Estate, Building, Unit, SubUnit
 from myrealestate.common.forms import PropertyImageForm
 import logging
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 
 logger = logging.getLogger(__name__)
 
@@ -187,16 +189,35 @@ class PropertyImageUploadView(BaseCreateView):
             }, status=400)
 
 
-class PropertyImageDeleteView(DeleteViewMixin, BaseUpdateView):
+class PropertyImageDeleteView(CompanyViewMixin, View):
     model = PropertyImage
     http_method_names = ['delete']
     
     def get_queryset(self):
         """Ensure users can only delete images from their company's properties"""
+        # Get all content types for our property models
+        estate_ct = ContentType.objects.get_for_model(Estate)
+        building_ct = ContentType.objects.get_for_model(Building)
+        unit_ct = ContentType.objects.get_for_model(Unit)
+        subunit_ct = ContentType.objects.get_for_model(SubUnit)
+        
+        company = self.get_company()
+        
+        # Filter images based on content type and company ownership
         return PropertyImage.objects.filter(
-            content_type__model__in=['estate', 'building', 'unit', 'subunit'],
-            property_object__company=self.get_company()
+            (
+                (Q(content_type=estate_ct) & Q(object_id__in=Estate.objects.filter(company=company).values('id'))) |
+                (Q(content_type=building_ct) & Q(object_id__in=Building.objects.filter(company=company).values('id'))) |
+                (Q(content_type=unit_ct) & Q(object_id__in=Unit.objects.filter(company=company).values('id'))) |
+                (Q(content_type=subunit_ct) & Q(object_id__in=SubUnit.objects.filter(parent_unit__company=company).values('id')))
+            )
         )
+
+    def get_object(self, queryset=None):
+        """Get the image object to delete"""
+        if queryset is None:
+            queryset = self.get_queryset()
+        return get_object_or_404(queryset, pk=self.kwargs['pk'])
 
     def delete(self, request, *args, **kwargs):
         """Handle delete request"""

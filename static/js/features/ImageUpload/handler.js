@@ -153,19 +153,23 @@ export class ImageUploadHandler {
                 method: 'DELETE',
                 headers: {
                     'X-CSRFToken': this.csrfToken,
+                    'Content-Type': 'application/json',
                 }
             });
 
-            if (response.ok) {
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
                 const item = document.querySelector(`[data-image-id="${imageId}"]`).closest('.carousel-item');
                 item.remove();
-                this.showSuccess('Image deleted successfully');
+                this.showSuccess(data.message || 'Image deleted successfully');
             } else {
-                throw new Error('Failed to delete image');
+                throw new Error(data.message || 'Failed to delete image');
             }
         } catch (error) {
-            this.showError('Failed to delete image');
-            }
+            console.error('Delete error:', error);
+            this.showError(error.message || 'Failed to delete image');
+        }
     }   
 
     async handleSetPrimary(imageId) {
