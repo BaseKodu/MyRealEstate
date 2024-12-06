@@ -212,6 +212,11 @@ class PropertyImageHandlerMixin:
     """Mixin to add image handling capabilities to views"""
     supports_images = True  # Flag to indicate image support
     
+    @property
+    def model_name(self):
+        """Return the model name for use in templates"""
+        return self.model.__name__
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if hasattr(self, 'object') and self.object:

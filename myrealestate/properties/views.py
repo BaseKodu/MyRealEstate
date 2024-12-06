@@ -8,6 +8,9 @@ from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from .models import PropertyImage, Estate, Building, Unit, SubUnit
 from myrealestate.common.forms import PropertyImageForm
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class EstateCreateView(PropertyImageHandlerMixin, BaseCreateView):
@@ -132,13 +135,20 @@ class PropertyImageUploadView(BaseCreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['property_object'] = self.get_property_object()
+        property_object = self.get_property_object()
+        logger.debug(f"Property type: {self.kwargs.get('property_type')}")
+        logger.debug(f"Property ID: {self.kwargs.get('property_id')}")
+        logger.debug(f"Property object: {property_object}")
+        logger.debug(f"Property object type: {type(property_object)}")
+        kwargs['property_object'] = property_object
         kwargs['company'] = self.get_company()
         return kwargs
 
     def get_property_object(self):
         property_type = self.kwargs.get('property_type')
         property_id = self.kwargs.get('property_id')
+        
+        logger.debug(f"Getting property object for type: {property_type}, id: {property_id}")
         
         model_map = {
             'estate': Estate,
@@ -149,12 +159,15 @@ class PropertyImageUploadView(BaseCreateView):
         
         Model = model_map.get(property_type.lower())
         if not Model:
+            logger.error(f"Invalid property type: {property_type}")
             raise Http404(f"Invalid property type: {property_type}")
             
-        return get_object_or_404(
+        obj = get_object_or_404(
             Model.objects.filter(company=self.get_company()), 
             pk=property_id
         )
+        logger.debug(f"Found object: {obj} of type {type(obj)}")
+        return obj
 
     def form_valid(self, form):
         try:
@@ -228,3 +241,4 @@ class PropertyImageSetPrimaryView(BaseUpdateView):
                 'status': 'error',
                 'message': str(e)
             }, status=400)
+

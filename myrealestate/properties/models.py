@@ -7,6 +7,12 @@ from myrealestate.accounts.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
+from datetime import datetime
+
+from myrealestate.common.storage import CustomS3Boto3Storage
+import logging
+
+logger = logging.getLogger(__name__)
 
 class BuildingTypeEnums(models.TextChoices):
    MULTI_UNIT = 'M', 'Multi Unit'
@@ -260,24 +266,22 @@ def validate_file_size(value):
     
 
 def property_image_path(instance, filename):
-    """
-    Generate path for property images with structure:
-    property_images/company_id/property_type/property_id/filename
-    """
-    from datetime import datetime
+    """Generate path: property_images/company_id/property_type/property_id/filename"""
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     ext = filename.split('.')[-1]
     filename = f"{timestamp}.{ext}"
     
-    # Get company ID and ensure all directories use lowercase
     company_id = instance.property_object.company.id
     property_type = instance.content_type.model.lower()
     
-    # Create the final path
-    final_path = f'property_images/{company_id}/{property_type}/{instance.object_id}/{filename}'
+    path = f'property_images/{company_id}/{property_type}/{instance.object_id}/{filename}'
     
-    print(f"Generated path for upload: {final_path}")  # Debug line
-    return final_path
+    logger.debug(f"Generating image path: {path}")
+    logger.debug(f"Content type: {instance.content_type.model}")
+    logger.debug(f"Object ID: {instance.object_id}")
+    
+    # Construct the path including the property_images prefix
+    return f'property_images/{company_id}/{property_type}/{instance.object_id}/{filename}'
 
 class PropertyImage(BaseModel):
     """
@@ -292,7 +296,7 @@ class PropertyImage(BaseModel):
     )
     object_id = models.PositiveIntegerField()
     property_object = GenericForeignKey('content_type', 'object_id')
-    image = models.ImageField(upload_to=property_image_path, validators=[validate_file_size])
+    image = models.ImageField(upload_to=property_image_path, validators=[validate_file_size], storage=CustomS3Boto3Storage())
     caption = models.CharField(max_length=200, blank=True)
     is_primary = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)

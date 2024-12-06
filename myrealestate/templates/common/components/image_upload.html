@@ -51,8 +51,8 @@
     document.addEventListener('DOMContentLoaded', () => {
         new ImageUploadHandler({
             dropzoneId: 'imageUploadForm',
-            // Use 'estate' directly instead of object|lower
-            uploadUrl: "{% url 'properties:property-image-upload' property_type='estate' property_id=object.id %}",
+            // Use the model name from the view
+            uploadUrl: "{% url 'properties:property-image-upload' property_type=view.model_name|lower property_id=object.id %}",
             deleteUrl: "{% url 'properties:property-image-delete' pk=0 %}".replace('0', '{id}'),
             setPrimaryUrl: "{% url 'properties:property-image-set-primary' pk=0 %}".replace('0', '{id}'),
             maxFiles: 50,

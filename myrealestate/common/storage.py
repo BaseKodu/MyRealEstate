@@ -4,6 +4,10 @@ import boto3
 from botocore.exceptions import ClientError
 from datetime import datetime
 import logging
+from storages.backends.s3boto3 import S3Boto3Storage
+from django.conf import settings
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -92,3 +96,23 @@ class StorageHealthCheck:
     def get_status(cls):
         """Get current storage status"""
         return cls.perform_health_check(force_check=False)
+    
+
+
+
+class CustomS3Boto3Storage(S3Boto3Storage):
+    """Custom storage class for MinIO"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        self.access_key = settings.AWS_ACCESS_KEY_ID
+        self.secret_key = settings.AWS_SECRET_ACCESS_KEY
+        self.endpoint_url = settings.AWS_S3_ENDPOINT_URL
+
+    def url(self, name):
+        """Generate URL for the file"""
+        url = super().url(name)
+        # If using development MinIO without SSL
+        if settings.DEVELOPMENT:
+            url = url.replace('https://', 'http://')
+        return url
