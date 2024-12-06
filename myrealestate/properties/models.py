@@ -4,6 +4,15 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from myrealestate.common.models import BaseModel
 from myrealestate.accounts.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext_lazy as _
+from datetime import datetime
+
+from myrealestate.common.storage import CustomS3Boto3Storage
+import logging
+
+logger = logging.getLogger(__name__)
 
 class BuildingTypeEnums(models.TextChoices):
    MULTI_UNIT = 'M', 'Multi Unit'
@@ -52,6 +61,7 @@ class Estate(BaseModel):
     amenities = models.JSONField(null=True, blank=True)
     estate_type = models.CharField(max_length=1, choices=EstateTypeEnums.choices, default=EstateTypeEnums.RESIDENTIAL)
     managing = models.BooleanField(default=False, help_text="Select if you or your company is managing this estate")
+    images = GenericRelation('PropertyImage', related_query_name='estate')
 
     def __str__(self):
         return self.name
@@ -63,6 +73,7 @@ class Building(BaseModel):
     building_type = models.CharField(max_length=1, choices=BuildingTypeEnums.choices, default=BuildingTypeEnums.MULTI_UNIT)
     address = models.CharField(max_length=500, null=True, blank=True)
     managing = models.BooleanField(default=False, help_text="Select if you or your company is managing this building")
+    images = GenericRelation('PropertyImage', related_query_name='building')
 
     objects = BuildingManager()
 
@@ -155,6 +166,7 @@ class Unit(BaseModel):
     base_rent = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     features = models.JSONField(null=True, blank=True)
+    images = GenericRelation('PropertyImage', related_query_name='unit')
 
     objects = UnitManager()
 
@@ -224,6 +236,7 @@ class SubUnit(BaseModel):
    base_rent = models.DecimalField(max_digits=10, decimal_places=2, null=True)
    deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
    is_vacant = models.BooleanField(default=True)
+   images = GenericRelation('PropertyImage', related_query_name='subunit')
 
    objects = SubUnitManager()
 
@@ -243,3 +256,100 @@ class SubUnit(BaseModel):
 
 # TODO: Address model. Keep addresses simple for now. We are gonna intergrate with google maps api
 #class Address(BaseModel):
+
+
+def validate_file_size(value):
+    """Validate that file size is under 5MB"""
+    filesize = value.size
+    if filesize > 5 * 1024 * 1024:  # 5MB
+        raise ValidationError(_("Maximum file size is 5MB"))
+    
+
+def property_image_path(instance, filename):
+    """Generate path: property_images/company_id/property_type/property_id/filename"""
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    ext = filename.split('.')[-1]
+    filename = f"{timestamp}.{ext}"
+    
+    company_id = instance.property_object.company.id
+    property_type = instance.content_type.model.lower()
+    
+    return f'property_images/{company_id}/{property_type}s/{instance.object_id}/{filename}'
+
+class PropertyImage(BaseModel):
+    """Generic image model that can be associated with Estate, Building, Unit, or SubUnit"""
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to={
+            'model__in': ('estate', 'building', 'unit', 'subunit')
+        }
+    )
+    object_id = models.PositiveIntegerField()
+    property_object = GenericForeignKey('content_type', 'object_id')
+    image = models.ImageField(upload_to=property_image_path, validators=[validate_file_size], storage=CustomS3Boto3Storage())
+    caption = models.CharField(max_length=200, blank=True)
+    is_primary = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['content_type', 'object_id']),
+            models.Index(fields=['is_primary']),
+            models.Index(fields=['order']),
+        ]
+        ordering = ['order', '-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['content_type', 'object_id', 'is_primary'],
+                condition=models.Q(is_primary=True),
+                name='unique_primary_image_per_object'
+            )
+        ]
+
+    def clean(self):
+        """Ensure image limits are respected"""
+        if not self.pk:  # Only check on creation
+            existing_count = PropertyImage.objects.filter(
+                content_type=self.content_type,
+                object_id=self.object_id
+            ).count()
+            if existing_count >= 50:
+                raise ValidationError(_("Maximum number of images (50) reached for this property."))
+
+    def save(self, *args, **kwargs):
+        """Handle primary image logic"""
+        if self.is_primary:
+            # Set all other images of this object to not primary
+            PropertyImage.objects.filter(
+                content_type=self.content_type,
+                object_id=self.object_id,
+                is_primary=True
+            ).exclude(pk=self.pk).update(is_primary=False)
+            
+        # If this is the first image, make it primary
+        elif not self.pk and not PropertyImage.objects.filter(
+            content_type=self.content_type,
+            object_id=self.object_id
+        ).exists():
+            self.is_primary = True
+            
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """Ensure there's always a primary image if images exist"""
+        was_primary = self.is_primary
+        super().delete(*args, **kwargs)
+        
+        if was_primary:
+            # Try to set another image as primary
+            remaining_image = PropertyImage.objects.filter(
+                content_type=self.content_type,
+                object_id=self.object_id
+            ).first()
+            if remaining_image:
+                remaining_image.is_primary = True
+                remaining_image.save()
+
+    def __str__(self):
+        return f"Image for {self.content_type.model} ({self.object_id})"

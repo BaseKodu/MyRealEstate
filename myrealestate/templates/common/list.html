@@ -60,7 +60,7 @@
                                     {% block table_actions %}
                                     <td class="flex gap-2">
                                         {% if can_edit %}
-                                        <a href="#" 
+                                        <a href="{% url app_name|add:':'|add:'update-'|add:model_name object.pk %}" 
                                            class="btn btn-sm">
                                            ✎
                                         </a>
