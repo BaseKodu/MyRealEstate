@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import django.core.mail
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -200,3 +203,9 @@ MEDIA_URL = f'http://{MINIO_ENDPOINT}/{MINIO_BUCKET_NAME}/'
 MEDIA_ROOT = ''  # MEDIA_ROOT is not used when using cloud storage
 
 DEFAULT_FILE_STORAGE = 'myrealestate.common.storage.CustomS3Boto3Storage'
+
+EMAIL_BACKEND= os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST= os.getenv('EMAIL_HOST', '127.0.0.1')
+EMAIL_PORT= os.getenv('EMAIL_PORT', 1025)  # Mailpit default SMTP port
+EMAIL_USE_TLS= os.getenv('EMAIL_USE_TLS', False)
+DEFAULT_FROM_EMAIL= os.getenv('DEFAULT_FROM_EMAIL', 'noreply@yourdomain.com')
