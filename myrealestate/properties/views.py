@@ -27,7 +27,7 @@ class EstateCreateView(PropertyImageHandlerMixin, BaseCreateView):
         self.object = form.save(commit=False)
         self.object.company = self.get_company()
         self.object.save()
-        messages.success(self.request, f"Estate created successfully.")
+        messages.success(self.request, "Estate created successfully.")
         return super(BaseCreateView, self).form_valid(form)
 
 
