@@ -1,4 +1,3 @@
-// static/js/patch-handler.js
 document.addEventListener('DOMContentLoaded', function() {
     // Listen for all form submissions
     document.addEventListener('submit', async function(e) {

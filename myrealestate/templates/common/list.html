@@ -1,0 +1,137 @@
+{% extends "user_base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <!-- Header Section -->
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="card-title text-2xl">{{ title }}</h2>
+                {% if can_add %}
+                <a href="#" class="btn btn-primary">
+                    Add New
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Search Section -->
+            <div class="mb-6">
+                <form method="get" class="flex gap-2">
+                    <input type="text" 
+                           name="q" 
+                           value="{{ search_query }}" 
+                           placeholder="Search..." 
+                           class="input input-bordered flex-1">
+                    <button type="submit" class="btn btn-secondary">
+                        Search
+                    </button>
+                    {% if search_query %}
+                    <a href="." class="btn btn-ghost">
+                        Clear
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+
+            <!-- Table Section -->
+            <div class="overflow-x-auto">
+                <table class="table table-zebra w-full">
+                    <!-- Table Header -->
+                    <thead>
+                        <tr>
+                            {% block table_headers %}
+                            <!-- Override this block to define table headers -->
+                            {% endblock %}
+                            {% if can_edit or can_delete %}
+                            <th class="w-20">Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    
+                    <!-- Table Body -->
+                    <tbody>
+                        {% for object in object_list %}
+                            <tr>
+                                {% block table_row %}
+                                <!-- Override this block to define table columns -->
+                                {% endblock %}
+                                
+                                {% if can_edit or can_delete %}
+                                    {% block table_actions %}
+                                    <td class="flex gap-2">
+                                        {% if can_edit %}
+                                        <a href="{% url app_name|add:':'|add:'update-'|add:model_name object.pk %}" 
+                                           class="btn btn-sm">
+                                           ✎
+                                        </a>
+                                        {% endif %}
+                                        
+                                        {% if can_delete %}
+                                        <button class="btn btn-sm btn-error delete-btn"
+                                                {# data-url="{% url app_name|add:':'|add:model_name|add:'-delete' object.pk %}"> #}
+                                                ✕
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                    {% endblock %}
+                                {% endif %}
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="100%" class="text-center py-4">
+                                    No items found.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Section -->
+            {% if is_paginated %}
+            <div class="flex justify-center mt-4">
+                <div class="join">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="join-item btn btn-sm">
+                        «
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="join-item btn btn-sm">
+                        ‹
+                    </a>
+                    {% endif %}
+
+                    <button class="join-item btn btn-sm">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </button>
+
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="join-item btn btn-sm">
+                        ›
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="join-item btn btn-sm">
+                        »
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<dialog id="delete-modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg">Confirm Delete</h3>
+        <div id="delete-modal-content"></div>
+    </div>
+</dialog>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/utils/object-deletion.js' %}"></script>
+{% endblock %}

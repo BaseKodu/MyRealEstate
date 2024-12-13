@@ -1,0 +1,13 @@
+{% extends "common/list.html" %}
+
+{% block table_headers %}
+<th>Name</th>
+<th>Type</th>
+<th>Total Buildings</th>
+{% endblock %}
+
+{% block table_row %}
+    <td>{{ object.name }}</td>
+    <td>{{ object.get_building_type_display }}</td>
+    <td>{{ object.estate.name }}</td>
+{% endblock %}

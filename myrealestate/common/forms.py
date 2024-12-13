@@ -1,4 +1,8 @@
 from django import forms
+from icecream import ic
+from django.contrib.contenttypes.models import ContentType
+from myrealestate.properties.models import PropertyImage
+
 
 class DaisyFormMixin:
     """Mixin to add DaisyUI styling to form fields"""
@@ -66,7 +70,14 @@ class BaseForm(DaisyFormMixin, forms.Form):
 
 class BaseModelForm(DaisyFormMixin, forms.ModelForm):
     """Base model form with DaisyUI styling"""
-    pass
+    def __init__(self, *args, **kwargs):
+        self.company = kwargs.pop('company', None)
+        super().__init__(*args, **kwargs)
+        self.style_fields()
+
+    def save(self, commit=True):
+        """Standard save without company logic"""
+        return super().save(commit)
 
 class ButtonStyles:
     """Helper class for DaisyUI button styling"""
@@ -96,3 +107,56 @@ class ButtonStyles:
             classes.extend(additional_classes)
             
         return ' '.join(classes)
+
+
+class BasePatchForm(BaseModelForm):
+    """Base form for PATCH requests with DaisyUI styling"""
+    _method = forms.CharField(
+        widget=forms.HiddenInput(),
+        initial='PATCH',
+        required=False
+    )
+
+    class Meta:
+        model = None
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ensure _method is always first in field order
+        field_order = ['_method'] + [f for f in self.fields if f != '_method']
+        self.order_fields(field_order)
+
+
+class PropertyImageForm(BaseModelForm):
+    class Meta:
+        model = PropertyImage
+        fields = ['image', 'caption']
+
+    def __init__(self, *args, property_object=None, **kwargs):
+        self.property_object = property_object
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.property_object:
+            raise forms.ValidationError("Property object is required")
+        
+        # Set content_type and object_id on the instance before validation
+        self.instance.content_type = ContentType.objects.get_for_model(self.property_object.__class__)
+        self.instance.object_id = self.property_object.id
+        
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        
+        # Content type and object_id are already set in clean()
+        
+        # Set company from the property object
+        if hasattr(self.property_object, 'company'):
+            instance.company = self.property_object.company
+        
+        if commit:
+            instance.save()
+        return instance

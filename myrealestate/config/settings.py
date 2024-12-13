@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import django.core.mail
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -47,9 +50,9 @@ THIRD_PARTY_APPS = [
 PROJECT_APPS = [
     'myrealestate.accounts',
     'myrealestate.common',
-    'myrealestate.org',
     'myrealestate.theme',
     'myrealestate.companies',
+    'myrealestate.properties'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
@@ -71,6 +74,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_browser_reload.middleware.BrowserReloadMiddleware",
+    'myrealestate.config.middleware.CompanyMiddleware',
 ]
 
 ROOT_URLCONF = 'myrealestate.config.urls'
@@ -86,6 +90,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'myrealestate.companies.context_processors.company_context',
+                'myrealestate.common.context_processor.storage_status',
             ],
         },
     },
@@ -162,3 +168,44 @@ AUTHENTICATION_BACKENDS = [
     'myrealestate.accounts.backends.EmailOrUsernameModelBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+LOGIN_REDIRECT_URL = '/home/'
+
+
+
+# minio, s3 and storage settings
+
+# settings.py
+
+# MinIO settings
+MINIO_ENDPOINT = 'localhost:9000'
+MINIO_ACCESS_KEY = 'admin'
+MINIO_SECRET_KEY = 'adminpassword'
+MINIO_BUCKET_NAME = 'mre-app-bucket'
+MINIO_SECURE = False  # Set to True if using HTTPS
+
+# Django Storage Settings
+#DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = MINIO_ACCESS_KEY
+AWS_SECRET_ACCESS_KEY = MINIO_SECRET_KEY
+AWS_STORAGE_BUCKET_NAME = MINIO_BUCKET_NAME
+AWS_S3_ENDPOINT_URL = f'http://{MINIO_ENDPOINT}'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_DEFAULT_ACL = 'public-read'  # Make sure this is set to allow public access
+AWS_QUERYSTRING_AUTH = False     # Set to False to avoid signed URLs
+AWS_S3_FILE_OVERWRITE = False
+
+MAX_IMAGE_COUNT = 50
+
+MEDIA_URL = f'http://{MINIO_ENDPOINT}/{MINIO_BUCKET_NAME}/'
+MEDIA_ROOT = ''  # MEDIA_ROOT is not used when using cloud storage
+
+DEFAULT_FILE_STORAGE = 'myrealestate.common.storage.CustomS3Boto3Storage'
+
+EMAIL_BACKEND= os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST= os.getenv('EMAIL_HOST', '127.0.0.1')
+EMAIL_PORT= os.getenv('EMAIL_PORT', 1025)  # Mailpit default SMTP port
+EMAIL_USE_TLS= os.getenv('EMAIL_USE_TLS', False)
+DEFAULT_FROM_EMAIL= os.getenv('DEFAULT_FROM_EMAIL', 'noreply@yourdomain.com')

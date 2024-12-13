@@ -1,9 +1,12 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from myrealestate.companies.models import Company
 from myrealestate.common.models import BaseModel
 from django.core.exceptions import ValidationError
+
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -28,6 +31,12 @@ class User(AbstractUser):
         related_name='users',
         verbose_name=_('Companies'),
     )
+    email_verified = models.BooleanField(default=False)
+    email_verification_token = models.UUIDField(unique=True, default=uuid.uuid4)
+
+    def generate_verification_token(self):
+        self.email_verification_token = uuid.uuid4()
+        self.save()
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
