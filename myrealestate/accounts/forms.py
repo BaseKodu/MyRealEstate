@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from myrealestate.common.forms import BaseModelForm, BaseForm
 from myrealestate.companies.models import Company
 from .models import UserTypeEnums
+import uuid
 
 
 class CustomUserCreationForm(BaseModelForm, UserCreationForm):
@@ -80,6 +81,8 @@ class CustomUserCreationForm(BaseModelForm, UserCreationForm):
                 name=company_name,
             )
             user.companies.add(company, through_defaults={'access_level': UserTypeEnums.COMPANY_OWNER})
+            user.email_verified = False
+            user.email_verification_token = uuid.uuid4()
         return user
 
 class CustomAuthenticationForm(BaseForm, AuthenticationForm):

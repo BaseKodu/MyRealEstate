@@ -1,0 +1,10 @@
+{% extends "emails/base/base_email.html" %}
+
+{% block content %}
+<h1>Welcome to {{ company_name }}!</h1>
+<p class="text-content">Hi {{ user.username }},</p>
+<p class="text-content">Please verify your email address to access your account.</p>
+<a href="{{ verification_url }}" class="button">Verify Email Address</a>
+<p class="text-content">Or copy this link:</p>
+<p class="text-content">{{ verification_url }}</p>
+{% endblock %}
