@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import django.core.mail
 import os
 
 
@@ -26,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = 'django-insecure-9+94h!805fyd@n4p-wk2_yd0kqgwga11e0%bg2a5ucjw08evo)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -105,8 +104,12 @@ WSGI_APPLICATION = 'myrealestate.config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': os.getenv('POSTGRES_HOST', 'db'),
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),
     }
 }
 
@@ -114,7 +117,7 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
-DEVELOPMENT = True
+DEVELOPMENT = os.getenv('DEVELOPMENT', 'True') == 'True'
 
 if DEVELOPMENT:
     AUTH_PASSWORD_VALIDATORS = [
@@ -151,11 +154,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR /  "static",
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Ensure static files are properly handled in development
+if DEBUG:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+else:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -177,34 +186,36 @@ LOGIN_REDIRECT_URL = '/home/'
 
 # settings.py
 
-# MinIO settings
-MINIO_ENDPOINT = 'localhost:9000'
-MINIO_ACCESS_KEY = 'admin'
-MINIO_SECRET_KEY = 'adminpassword'
-MINIO_BUCKET_NAME = 'mre-app-bucket'
-MINIO_SECURE = False  # Set to True if using HTTPS
+# MinIO and storage settings
+MINIO_ENDPOINT = os.getenv('MINIO_ENDPOINT', 'minio:9000')
+MINIO_ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY', 'minio_access_key')
+MINIO_SECRET_KEY = os.getenv('MINIO_SECRET_KEY', 'minio_secret_key')
+MINIO_BUCKET_NAME = os.getenv('MINIO_BUCKET_NAME', 'mre-app-bucket')
+MINIO_SECURE = os.getenv('MINIO_SECURE', 'False') == 'True'  # Set to True if using HTTPS
 
-# Django Storage Settings
-#DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# AWS/S3 Settings
 AWS_ACCESS_KEY_ID = MINIO_ACCESS_KEY
 AWS_SECRET_ACCESS_KEY = MINIO_SECRET_KEY
 AWS_STORAGE_BUCKET_NAME = MINIO_BUCKET_NAME
-AWS_S3_ENDPOINT_URL = f'http://{MINIO_ENDPOINT}'
+AWS_S3_ENDPOINT_URL = f'{"https" if MINIO_SECURE else "http"}://{MINIO_ENDPOINT}'
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
-AWS_DEFAULT_ACL = 'public-read'  # Make sure this is set to allow public access
-AWS_QUERYSTRING_AUTH = False     # Set to False to avoid signed URLs
+AWS_DEFAULT_ACL = 'public-read'
+AWS_QUERYSTRING_AUTH = False
 AWS_S3_FILE_OVERWRITE = False
 
 MAX_IMAGE_COUNT = 50
 
-MEDIA_URL = f'http://{MINIO_ENDPOINT}/{MINIO_BUCKET_NAME}/'
-MEDIA_ROOT = ''  # MEDIA_ROOT is not used when using cloud storage
+MEDIA_URL = f'{"https" if MINIO_SECURE else "http"}://{MINIO_ENDPOINT}/{MINIO_BUCKET_NAME}/'
+MEDIA_ROOT = ''
 DEFAULT_FILE_STORAGE = 'myrealestate.common.storage.CustomS3Boto3Storage'
 
-EMAIL_BACKEND= os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST= os.getenv('EMAIL_HOST', 'localhost')
-EMAIL_PORT= int(os.getenv('EMAIL_PORT', 1025)) # Mailpit default SMTP port
-EMAIL_USE_TLS= os.getenv('EMAIL_USE_TLS', False)
-DEFAULT_FROM_EMAIL= os.getenv('DEFAULT_FROM_EMAIL', 'noreply@myrealestate.co.za')
+
+
+# Email Settings
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'mailpit')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 1025))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'False') == 'True'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@myrealestate.co.za')

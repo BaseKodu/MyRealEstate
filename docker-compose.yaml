@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: django_app
+    command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/mediafiles
+      - node_modules:/app/myrealestate/theme/static/node_modules
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DJANGO_SETTINGS_MODULE=myrealestate.config.settings
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+      - MINIO_ACCESS_KEY=minio_access_key
+      - MINIO_SECRET_KEY=minio_secret_key
+      - MINIO_BUCKET_NAME=mre-app-bucket
+      - MINIO_ENDPOINT=minio:9000
+      - EMAIL_HOST=mailpit
+      - EMAIL_PORT=1025
+    depends_on:
+      - db
+      - minio
+      - mailpit
+      - tailwind
+
+  tailwind:
+    build: .
+    container_name: tailwind_css
+    command: bash -c "python manage.py tailwind install && python manage.py tailwind start"
+    volumes:
+      - .:/app
+      - node_modules:/app/myrealestate/theme/static/node_modules
+    ports:
+      - "8383:8383"  # Default port for Tailwind CSS live reload
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
+  minio:
+    image: minio/minio
+    container_name: minio_storage
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minio_access_key
+      - MINIO_ROOT_PASSWORD=minio_secret_key
+    command: server --console-address ":9001" /data
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit_server
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port
+
+volumes:
+  static_volume:
+  media_volume:
+  postgres_data:
+  minio_data:
+  node_modules:
