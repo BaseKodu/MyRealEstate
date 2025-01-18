@@ -1,0 +1,97 @@
+{% extends "user_base.html" %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex gap-6">
+        <!-- Sidebar -->
+        <div class="w-64">
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <h2 class="card-title">{{ title }}</h2>
+                    <ul class="menu bg-base-100">
+                        {% for section_id, section in form.fieldsets.items %}
+                        <li>
+                            <a href="#" 
+                               data-section="{{ section_id }}" 
+                               class="section-link {% if forloop.first %}active{% endif %}">
+                                {{ section.title }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1">
+            <div class="card bg-base-100 shadow">
+                <form method="post" id="settings-form" class="card-body">
+                    {% csrf_token %}
+                    <input type="hidden" name="_method" value="PATCH">
+
+                    {% for section_id, section in form.fieldsets.items %}
+                    <div id="{{ section_id }}" class="settings-section space-y-4 mb-8 {% if not forloop.first %}hidden{% endif %}">
+                        <h3 class="text-lg font-semibold border-b pb-2">{{ section.title }}</h3>
+                        {% for field_name in section.fields %}
+                            {% with field=form|get_field:field_name %}
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">{{ field.label }}</span>
+                                    {% if field.field.required %}
+                                        <span class="label-text-alt text-error font-bold">*</span>
+                                    {% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ field.errors|join:", " }}</span>
+                                    </label>
+                                {% endif %}
+                            </div>
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="card-actions justify-end mt-6">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module">
+    import { initializeAjaxForm } from "{% static 'js/utils/formHandler.js' %}";
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AJAX form handling
+        initializeAjaxForm('settings-form');
+        
+        // Handle section switching
+    const sectionLinks = document.querySelectorAll('.section-link');
+    const sections = document.querySelectorAll('.settings-section');
+
+    sectionLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all links and hide all sections
+            sectionLinks.forEach(l => l.classList.remove('active'));
+            sections.forEach(s => s.classList.add('hidden'));
+            
+            // Add active class to clicked link and show corresponding section
+            this.classList.add('active');
+            const sectionId = this.dataset.section;
+            document.getElementById(sectionId).classList.remove('hidden');
+        });
+    });
+    });
+</script>
+{% endblock %}

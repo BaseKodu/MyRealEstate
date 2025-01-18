@@ -9,8 +9,6 @@ def company_dict(company: Company, user: User) -> dict:
     return {
         'id': company.id,
         'name': company.name,
-        'contact_email': company.contact_email,
-        'contact_phone': company.contact_phone,
         # Add any other company fields you want to store in session
     }
 
