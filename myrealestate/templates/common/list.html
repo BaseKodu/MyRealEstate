@@ -7,11 +7,13 @@
             <!-- Header Section -->
             <div class="flex justify-between items-center mb-6">
                 <h2 class="card-title text-2xl">{{ title }}</h2>
-                {% if can_add %}
-                <a href="#" class="btn btn-primary">
-                    Add New
-                </a>
-                {% endif %}
+                {% block add_button %}
+                    {% if can_add %}
+                    <a href="#" class="btn btn-primary">
+                        Add New
+                    </a>
+                    {% endif %}
+                {% endblock %}
             </div>
 
             <!-- Search Section -->
@@ -60,7 +62,7 @@
                                     {% block table_actions %}
                                     <td class="flex gap-2">
                                         {% if can_edit %}
-                                        <a href="{% url app_name|add:':'|add:'update-'|add:model_name object.pk %}" 
+                                        {# <a href="{% url app_name|add:':'|add:'update-'|add:model_name object.pk %}" #}
                                            class="btn btn-sm">
                                            ✎
                                         </a>

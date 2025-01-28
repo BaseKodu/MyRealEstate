@@ -14,6 +14,10 @@ import uuid
 from .models import User
 from myrealestate.common.utils import get_email_template
 from datetime import datetime
+from django.contrib.auth import login
+from django.shortcuts import get_object_or_404
+from .forms import InvitedUserRegistrationForm
+from myrealestate.common.views import BaseUpdateView
 
 
 def send_verification_email(user, request):
@@ -98,12 +102,6 @@ class VerifyEmailView(TemplateView):
             return redirect('accounts:login')          
 
 
-
-
-
-
-
-
 class EmailVerificationRequiredMixin(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.email_verified
@@ -113,3 +111,39 @@ class EmailVerificationRequiredMixin(UserPassesTestMixin):
             return super().handle_no_permission()
         messages.warning(self.request, 'Please verify your email address to access this page.')
         return redirect('accounts:verification_sent')
+    
+
+
+class CompleteRegistrationView(BaseUpdateView):
+    form_class = InvitedUserRegistrationForm
+    model = User
+    title = "Registration"
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Override dispatch to get user by token instead of pk
+        token = self.kwargs.get('token')
+        self.object = get_object_or_404(
+            User, 
+            email_verification_token=token,
+            email_verified=False
+        )
+        return super(BaseUpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_invitation'] = True  # Add flag for template
+        context['invited_email'] = self.object.email
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.object
+        return kwargs
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        login(self.request, self.object)  # Log the user in after successful completion
+        return response
+
+    def get_success_url(self):
+        return reverse_lazy('home')  # Or wherever you want to redirect after

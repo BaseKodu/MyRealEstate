@@ -2,12 +2,13 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
-from .models import User
 from django.utils.translation import gettext_lazy as _
 from myrealestate.common.forms import BaseModelForm, BaseForm
-from myrealestate.companies.models import Company
-from .models import UserTypeEnums
+from .models import User, UserTypeEnums
 import uuid
+
+# Import Company model only where it's needed in the save method
+from myrealestate.companies.models import Company
 
 
 class CustomUserCreationForm(BaseModelForm, UserCreationForm):
@@ -111,3 +112,36 @@ class CustomAuthenticationForm(BaseForm, AuthenticationForm):
     
     
     
+
+
+# forms.py
+class InvitedUserRegistrationForm(CustomUserCreationForm):
+    # Remove email field since it's already set
+    email = None
+    # Remove company_name field since they're being invited to an existing company
+    company_name = None
+
+    class Meta:
+        model = User
+        fields = ('username', 'password1', 'password2')
+
+    def __init__(self, user=None, *args, **kwargs):
+        self.invited_user = user
+        super().__init__(*args, **kwargs)
+        # Remove email field from the form
+        if 'email' in self.fields:
+            del self.fields['email']
+
+    def save(self, commit=True):
+        if not self.invited_user:
+            raise ValueError("Invited user instance is required")
+        
+        self.invited_user.username = self.cleaned_data['username']
+        self.invited_user.set_password(self.cleaned_data['password1'])
+        self.invited_user.email_verified = True
+        self.invited_user.email_verification_token = None
+        
+        if commit:
+            self.invited_user.save()
+        
+        return self.invited_user

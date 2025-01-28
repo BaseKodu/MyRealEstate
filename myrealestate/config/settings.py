@@ -184,8 +184,6 @@ LOGIN_REDIRECT_URL = '/home/'
 
 # minio, s3 and storage settings
 
-# settings.py
-
 # MinIO and storage settings
 MINIO_ENDPOINT = os.getenv('MINIO_ENDPOINT', 'minio:9000')
 MINIO_ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY', 'minio_access_key')
