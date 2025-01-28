@@ -62,7 +62,7 @@
                                     {% block table_actions %}
                                     <td class="flex gap-2">
                                         {% if can_edit %}
-                                        {# <a href="{% url app_name|add:':'|add:'update-'|add:model_name object.pk %}" #}
+                                         <a href="{% url app_name|add:':'|add:'update-'|add:model_name object.pk %}"
                                            class="btn btn-sm">
                                            ✎
                                         </a>
@@ -124,6 +124,8 @@
         </div>
     </div>
 </div>
+
+{% block extra_content %}{% endblock %}
 
 <!-- Delete Confirmation Modal -->
 <dialog id="delete-modal" class="modal">

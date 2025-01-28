@@ -1,6 +1,6 @@
 // static/js/features/registrationCompletion.js
-import { toaster } from '../components/toaster.js';
-import { PasswordValidator } from '../utils/password_validator.js';
+import { toaster } from '../../components/toaster.js';
+import { PasswordValidator } from '../../utils/password_validator.js';
 
 export class RegistrationCompletion {
     constructor(formId) {

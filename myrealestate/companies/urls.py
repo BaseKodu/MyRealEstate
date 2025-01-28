@@ -16,6 +16,8 @@ urlpatterns = [
     path('api/users/check-email/', CheckEmailView.as_view(), name='check_user_email'),
 ]
 
+
+
 '''
 # urls.py
 urlpatterns = [

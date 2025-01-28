@@ -1,15 +1,34 @@
-import { toaster } from '../../components/toaster';
+import { toaster } from '../../components/toaster.js';
+
+console.log('UserInvitationModal module loaded');
 
 export class UserInvitationModal {
     constructor() {
+        console.log('Initializing UserInvitationModal');
         this.modalToggle = document.getElementById('invite-user-modal');
         this.form = document.getElementById('invite-user-form');
+        
+        if (!this.modalToggle || !this.form) {
+            console.error('Modal elements not found:', {
+                modalToggle: !!this.modalToggle,
+                form: !!this.form
+            });
+            return;
+        }
+
+        // Only set emailInput if the form exists
         this.emailInput = this.form.querySelector('input[name="email"]');
+        console.log('Found elements:', {
+            modalToggle: this.modalToggle,
+            form: this.form,
+            emailInput: this.emailInput
+        });
         
         this.init();
     }
 
     init() {
+        if (!this.form) return;
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
     }
 

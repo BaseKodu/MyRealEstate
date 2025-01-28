@@ -1,4 +1,8 @@
 {% extends "common/list.html" %}
+<!-- Add debug comment to verify template inheritance -->
+<!-- Debug: company_users_list.html -->
+{% load static %}
+
 {% block add_button %}
 {% if can_add %}
 <label for="invite-user-modal" class="btn btn-primary">Invite User</label>
@@ -30,15 +34,37 @@
 </td>
 {% endblock %}
 
+{% block table_actions %}
+<td class="flex gap-2">
+    {% if can_edit %}
+    <a href="{% url 'companies:update-usercompanyaccess' object.pk %}" 
+       class="btn btn-sm">
+       ✎
+    </a>
+    {% endif %}
+    
+    {% if can_delete %}
+    <button class="btn btn-sm btn-error delete-btn"
+            data-url="{% url 'companies:delete-usercompanyaccess' object.pk %}">
+            ✕
+    </button>
+    {% endif %}
+</td>
+{% endblock %}
+
 {% block extra_content %}
+<!-- Debug text -->
+<div class="hidden">Modal debug: present</div>
 <!-- Invitation Modal -->
 <input type="checkbox" id="invite-user-modal" class="modal-toggle" />
 <div class="modal">
     <div class="modal-box relative">
+        <!-- Debug text -->
+        <div>Modal content debug: present</div>
         <label for="invite-user-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
         <h3 class="font-bold text-lg mb-4">Invite User</h3>
         
-        <form id="invite-user-form" method="post" action="{% url 'accounts:invite_user' %}">
+        <form id="invite-user-form" method="post" action="{% url 'companies:invite_user' %}">
             {% csrf_token %}
             
             <div class="space-y-4">
@@ -64,4 +90,18 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script type="module">
+    console.log('Loading modal script...');
+    try {
+        const { UserInvitationModal } = await import("{% static 'js/features/registrationCompletion/userInvitationModal.js' %}");
+        console.log('Modal script loaded');
+        new UserInvitationModal();
+    } catch (error) {
+        console.error('Error loading modal:', error);
+    }
+</script>
 {% endblock %}
