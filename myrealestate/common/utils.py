@@ -1,5 +1,8 @@
 from django.core.exceptions import PermissionDenied
 from myrealestate.companies.models import Company
+import premailer
+from django.template.loader import render_to_string
+from pathlib import Path
 
 
 def getCurrentCompany(request):
@@ -45,3 +48,21 @@ def getCurrentCompany(request):
             request.refresh_company = True
 
     return company
+
+
+
+
+def get_email_template(template_name, context):
+    """
+    Renders email template with inline CSS
+    """
+    css_path = Path(__file__).resolve().parent.parent / 'templates/emails/base/styles.css'
+    with open(css_path) as f:
+        css = f.read()
+        
+    context['styles'] = css
+    html = render_to_string(template_name, context)
+    
+    # Inline CSS for email client compatibility
+    inliner = premailer.Premailer(html)
+    return inliner.transform()

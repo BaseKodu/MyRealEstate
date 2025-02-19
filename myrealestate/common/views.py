@@ -100,12 +100,14 @@ class BaseCreateView(CompanyRequiredMixin, CompanyViewMixin, TitleMixin, CreateV
     
     def form_valid(self, form):
         """Handle form submission"""
+        #ic("Form valid called")
         response = super().form_valid(form)
         messages.success(self.request, f"{self.model._meta.verbose_name} created successfully.")
+        #ic("Form valid response:", response)
         return response
     
     def post(self, request, *args, **kwargs):
-        #ic("POST received:", request.POST)  # Debug POST data
+        ic("POST received:", request.POST)  # Debug POST data
         return super().post(request, *args, **kwargs)
     
     def get_success_url(self):

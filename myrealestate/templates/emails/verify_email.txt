@@ -1,0 +1,14 @@
+Welcome to {{ company_name }}!
+
+Hi {{ user.username }},
+
+Thank you for registering. Please verify your email address to access your account.
+
+Please click the link below or copy it into your browser to verify your email address:
+
+{{ verification_url }}
+
+If you didn't create an account, you can safely ignore this email.
+
+Best regards,
+The {{ company_name }} Team

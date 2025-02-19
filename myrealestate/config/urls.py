@@ -26,4 +26,5 @@ urlpatterns = [
     path("__reload__/", include("django_browser_reload.urls")),
     path('home/', home, name='home'),
     path('properties/', include('myrealestate.properties.urls', namespace='properties')),
+    path('company/', include('myrealestate.companies.urls', namespace='companies')),
 ]
