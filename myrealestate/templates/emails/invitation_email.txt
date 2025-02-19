@@ -1,0 +1,12 @@
+Welcome to {{ company_name }}!
+
+You have been invited to join {{ company_name }} by {{ inviter_email }}.
+
+To complete your registration and access the platform, please click on the link below:
+
+{{ verification_url }}
+
+If you did not request this invitation, please ignore this email.
+
+Best regards,
+The MyRealEstate Team

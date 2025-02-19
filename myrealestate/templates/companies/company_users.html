@@ -53,14 +53,10 @@
 {% endblock %}
 
 {% block extra_content %}
-<!-- Debug text -->
-<div class="hidden">Modal debug: present</div>
 <!-- Invitation Modal -->
 <input type="checkbox" id="invite-user-modal" class="modal-toggle" />
 <div class="modal">
     <div class="modal-box relative">
-        <!-- Debug text -->
-        <div>Modal content debug: present</div>
         <label for="invite-user-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
         <h3 class="font-bold text-lg mb-4">Invite User</h3>
         
@@ -95,10 +91,8 @@
 {% block extra_js %}
 {{ block.super }}
 <script type="module">
-    console.log('Loading modal script...');
     try {
         const { UserInvitationModal } = await import("{% static 'js/features/registrationCompletion/userInvitationModal.js' %}");
-        console.log('Modal script loaded');
         new UserInvitationModal();
     } catch (error) {
         console.error('Error loading modal:', error);

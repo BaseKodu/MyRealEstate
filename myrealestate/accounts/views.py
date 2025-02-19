@@ -117,7 +117,8 @@ class EmailVerificationRequiredMixin(UserPassesTestMixin):
 class CompleteRegistrationView(BaseUpdateView):
     form_class = InvitedUserRegistrationForm
     model = User
-    title = "Registration"
+    template_name = 'accounts/complete_registration.html'
+    title = "Complete Registration"
     
     def dispatch(self, request, *args, **kwargs):
         # Override dispatch to get user by token instead of pk
@@ -146,4 +147,4 @@ class CompleteRegistrationView(BaseUpdateView):
         return response
 
     def get_success_url(self):
-        return reverse_lazy('home')  # Or wherever you want to redirect after
+        return reverse_lazy('home')

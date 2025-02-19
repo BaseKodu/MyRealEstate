@@ -13,7 +13,7 @@ from .forms import CompanySettingsForm
 from .forms import UserInvitationForm
 from .forms import UserCompanyAccessForm
 from myrealestate.common.views import DeleteViewMixin
-
+from icecream import ic
 # Create your views here.
 
 def home(request):
@@ -112,6 +112,8 @@ class InviteUserView(BaseCreateView):
     def form_valid(self, form):
         try:
             response = super().form_valid(form)
+            ic("Form valid called")
+            ic("Form valid response:", response)
             if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'success',
@@ -119,6 +121,7 @@ class InviteUserView(BaseCreateView):
                 })
             return response
         except Exception as e:
+            ic("Exception:", e)
             if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'error',
@@ -127,7 +130,10 @@ class InviteUserView(BaseCreateView):
             raise
 
     def form_invalid(self, form):
+        ic("Form invalid called")
+        ic("Form errors:", form.errors)
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+
             return JsonResponse({
                 'status': 'error',
                 'errors': form.errors
