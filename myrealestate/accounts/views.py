@@ -128,6 +128,7 @@ class CompleteRegistrationView(BaseUpdateView):
             email_verification_token=token,
             email_verified=False
         )
+        # TODO: Come back to ensure that when user clicks on the invitation link in their email, they are redirected to this page and can complete their registration
         return super(BaseUpdateView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
