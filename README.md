@@ -92,3 +92,4 @@ There are two ways to set up the project: using Docker (recommended) or local se
 - Mailpit UI is available at http://localhost:8025
 - Tailwind CSS live reload runs on http://localhost:8383
 
+
