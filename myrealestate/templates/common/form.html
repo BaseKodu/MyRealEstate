@@ -7,17 +7,17 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
                 <h2 class="card-title text-2xl mb-4">
-                    {% if is_create %}
-                        Create {{ title }}
-                    {% else %}
-                        Edit {{ title }}
-                    {% endif %}
+                    {{ title }}
                 </h2>
 
                 <form method="post" enctype="multipart/form-data" class="space-y-4">
                     {% csrf_token %}
                     
                     {% include "common/components/form.html" with form=form %}
+                    
+                    {% if form.amenities or form.features %}
+                        {% include "properties/amenities_features.html" %}
+                    {% endif %}
                     
                     <div class="card-actions justify-end mt-6 space-x-2">
                         <a href="{{ view.get_success_url }}" class="btn btn-ghost">
