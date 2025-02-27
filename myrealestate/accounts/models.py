@@ -22,6 +22,8 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
 
+
+# TODO: Allow users to be able to register and manage their properties not as companies but rather as individuals
 class User(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)
     companies = models.ManyToManyField(
