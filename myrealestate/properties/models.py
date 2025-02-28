@@ -167,8 +167,8 @@ class Unit(BaseModel):
     bathrooms = models.DecimalField(max_digits=3, decimal_places=1, default=1)
     furnished = models.BooleanField(default=False)
     available_from = models.DateField(null=True, blank=True)
-    #base_rent = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    #deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    base_rent = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     amenities = models.ManyToManyField(
         'Amenity',
         through='UnitAmenityRelation',
@@ -187,7 +187,7 @@ class Unit(BaseModel):
     class Meta:
        indexes = [
            models.Index(fields=['is_vacant']),
-           #models.Index(fields=['base_rent']),
+           models.Index(fields=['base_rent']),
            models.Index(fields=['unit_type', 'is_vacant']),
            models.Index(fields=['building', 'is_vacant']),
            models.Index(fields=['available_from']),
@@ -285,8 +285,8 @@ class SubUnit(BaseModel):
    sublet_tenant = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="subunits")
    furnished = models.BooleanField(default=False)
    available_from = models.DateField(null=True, blank=True)
-   #base_rent = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-   #deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+   base_rent = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+   deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
    is_vacant = models.BooleanField(default=True)
    images = GenericRelation('PropertyImage', related_query_name='subunit')
 
@@ -295,7 +295,7 @@ class SubUnit(BaseModel):
    class Meta:
        indexes = [
            models.Index(fields=['is_vacant']),
-           #models.Index(fields=['base_rent']),
+           models.Index(fields=['base_rent']),
            models.Index(fields=['available_from']),
            models.Index(fields=['parent_unit', 'is_vacant']),
        ]

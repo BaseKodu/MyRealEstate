@@ -1,5 +1,5 @@
 from django.db import models
-from myrealestate.common.models import BaseModel, MoneyField
+from myrealestate.common.models import BaseModel, CurrencyField
 from django.core.validators import MinValueValidator
 from .enums import PropertyType
 from django.utils.translation import gettext_lazy as _
@@ -30,7 +30,7 @@ class MunicipalAccount(BaseModel):
     payment_day = models.PositiveIntegerField(validators=[MinValueValidator(1)], help_text=_("Day of month when payment is due"))
     
     # Property valuation for rates
-    municipal_valuation = MoneyField(null=True, blank=True, help_text=_("Municipal valuation for rates calculation"))
+    municipal_valuation = CurrencyField(null=True, blank=True, help_text=_("Municipal valuation for rates calculation"))
     valuation_date = models.DateField(null=True, blank=True)
     
     notes = models.TextField(blank=True, null=True)
