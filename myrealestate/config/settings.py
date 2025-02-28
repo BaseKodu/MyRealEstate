@@ -53,7 +53,7 @@ PROJECT_APPS = [
     'myrealestate.theme',
     'myrealestate.companies',
     'myrealestate.properties',
-    'myrealestate.finances',
+    'myrealestate.finances.apps.FinancesConfig'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
