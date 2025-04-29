@@ -122,10 +122,79 @@ class BasePatchForm(BaseModelForm):
         fields = []
 
     def __init__(self, *args, **kwargs):
+        self.company = kwargs.pop('company', None)
         super().__init__(*args, **kwargs)
         # Ensure _method is always first in field order
         field_order = ['_method'] + [f for f in self.fields if f != '_method']
         self.order_fields(field_order)
+        
+        # Make all fields optional for PATCH requests
+        if self.data.get('_method') == 'PATCH':
+            for field_name, field in self.fields.items():
+                if field_name != '_method':
+                    field.required = False
+        
+        self.style_fields()
+
+    def clean(self):
+        """
+        For PATCH requests, only validate fields that were actually submitted.
+        This allows partial updates without requiring all fields.
+        """
+        cleaned_data = super().clean()
+        
+        if self.data.get('_method') == 'PATCH' and self.instance.pk:
+            # For fields not in the submitted data, use the existing values
+            for field_name, field in self.fields.items():
+                if field_name not in self.data and field_name != '_method':
+                    # Skip validation for this field
+                    if field_name in self.errors:
+                        del self.errors[field_name]
+                    
+                    # Use existing value from the instance
+                    if hasattr(self.instance, field_name):
+                        cleaned_data[field_name] = getattr(self.instance, field_name)
+        
+        return cleaned_data
+
+    def save(self, commit=True):
+        """
+        For PATCH requests, only update fields that were actually submitted.
+        """
+        if self.data.get('_method') == 'PATCH' and self.instance.pk:
+            # Get the current instance from the database
+            instance = self.instance.__class__.objects.get(pk=self.instance.pk)
+            
+            # Get list of many-to-many fields
+            m2m_fields = [f.name for f in self._meta.model._meta.many_to_many]
+            
+            # Only update fields that were in the submitted data
+            for field_name in self.fields:
+                if field_name in self.data and field_name != '_method':
+                    # Skip many-to-many fields, they'll be handled separately
+                    if field_name not in m2m_fields:
+                        setattr(self.instance, field_name, self.cleaned_data.get(field_name))
+            
+            # Handle many-to-many fields separately
+            if commit:
+                self.instance.save()
+                
+                # Handle M2M fields that were in the submitted data
+                for field_name in m2m_fields:
+                    if field_name in self.data and field_name != '_method':
+                        # Get the related manager
+                        related_manager = getattr(self.instance, field_name)
+                        # Get the new values from cleaned_data
+                        new_values = self.cleaned_data.get(field_name)
+                        if new_values is not None:
+                            # Clear and set the new values
+                            related_manager.clear()
+                            related_manager.add(*new_values)
+                
+            return self.instance
+        else:
+            # For non-PATCH requests, use the standard save method
+            return super().save(commit)
 
 
 class PropertyImageForm(BaseModelForm):

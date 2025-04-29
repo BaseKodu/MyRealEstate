@@ -1,5 +1,5 @@
 from myrealestate.common.views import BaseListView, BaseCreateView, DeleteViewMixin, BaseUpdateView, PropertyImageHandlerMixin, CompanyViewMixin
-from myrealestate.properties.models import Estate, Building, Unit
+from myrealestate.properties.models import Estate, Building, Unit, Amenity, PropertyFeature
 from myrealestate.properties.forms import EstateForm, BuildingForm, UnitForm, EstatePatchForm, BuildingPatchForm, UnitPatchForm
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
@@ -20,15 +20,22 @@ class EstateCreateView(PropertyImageHandlerMixin, BaseCreateView):
     success_url = reverse_lazy("home")
     title = "Create New Estate"
     supports_images = False
+    is_create = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['amenities'] = Amenity.objects.all().order_by('category', 'name')
+        return context
 
     def form_valid(self, form):
-        # TODO: Ensure that save logic for objects with company attribute is handled in a base view or base form in order to keep up with DRY principle
-        """Handle form submission"""
         self.object = form.save(commit=False)
         self.object.company = self.get_company()
         self.object.save()
+        
+        # Save many-to-many relationships
+        form.save_m2m()
+        
         messages.success(self.request, "Estate created successfully.")
-
         return super(BaseCreateView, self).form_valid(form)
 
 
@@ -56,6 +63,11 @@ class EstateUpdateView(PropertyImageHandlerMixin, BaseUpdateView):
     form_class = EstatePatchForm
     success_url = reverse_lazy("home")
     title = "Update Estate"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['amenities'] = Amenity.objects.all().order_by('category', 'name')
+        return context
 
     def form_valid(self, form):
         #messages.success(self.request, f"Estate updated successfully.")
@@ -104,13 +116,21 @@ class UnitCreateView(PropertyImageHandlerMixin, BaseCreateView):
     title = "Create New Unit"
     supports_images = False
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['amenities'] = Amenity.objects.all().order_by('category', 'name')
+        context['features'] = PropertyFeature.objects.all().order_by('category', 'name')
+        return context
+
     def form_valid(self, form):
-        # TODO: Ensure that save logic for objects with company attribute is handled in a base view or base form in order to keep up with DRY principle
-        """Handle form submission"""
         self.object = form.save(commit=False)
         self.object.company = self.get_company()
         self.object.save()
-        messages.success(self.request, f"Unit created successfully.")
+        
+        # Save many-to-many relationships
+        form.save_m2m()
+        
+        messages.success(self.request, "Unit created successfully.")
         return super(BaseCreateView, self).form_valid(form)
 
 
@@ -121,11 +141,17 @@ class UnitListView(BaseListView):
     title = "Unit List"
 
 
-class UnitUpdateView(PropertyImageHandlerMixin,BaseUpdateView):
+class UnitUpdateView(PropertyImageHandlerMixin, BaseUpdateView):
     model = Unit
     form_class = UnitPatchForm
     success_url = reverse_lazy("home")
     title = "Update Unit"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['amenities'] = Amenity.objects.all().order_by('category', 'name')
+        context['features'] = PropertyFeature.objects.all().order_by('category', 'name')
+        return context
 
     def form_valid(self, form):
        #messages.success(self.request, f"Unit updated successfully.")
