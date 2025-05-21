@@ -1,4 +1,3 @@
-// static/js/features/registrationCompletion.js
 import { toaster } from '../../components/toaster.js';
 import { PasswordValidator } from '../../utils/password_validator.js';
 

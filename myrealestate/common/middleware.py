@@ -31,12 +31,11 @@ class StorageHealthMiddleware:
         if request.method in ['POST', 'PUT', 'PATCH'] and request.FILES:
             return True
             
-        # Check on image-related URLs (customize these patterns for your app)
+        # Check on image-related URLs
         image_related_paths = [
             '/property/images/',
             '/upload/',
             '/documents/',
-            # Add other relevant paths
         ]
         
         return any(path in request.path for path in image_related_paths)

@@ -6,8 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from myrealestate.common.forms import BaseModelForm, BaseForm
 from .models import User, UserTypeEnums
 import uuid
-
-# Import Company model only where it's needed in the save method
 from myrealestate.companies.models import Company
 
 
@@ -110,11 +108,7 @@ class CustomAuthenticationForm(BaseForm, AuthenticationForm):
         'inactive': _("This account is inactive."),
     }
     
-    
-    
 
-
-# forms.py
 class InvitedUserRegistrationForm(CustomUserCreationForm):
     # Remove email field since it's already set
     email = None

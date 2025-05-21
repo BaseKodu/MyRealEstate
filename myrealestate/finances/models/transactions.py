@@ -8,8 +8,6 @@ from .enums import TransactionType, PropertyType, PaymentMethod
 from . import FinancialCategory, MunicipalAccount, BodyCorporate, PropertyBond
 
 
-
-
 class FinancialTransaction(BaseModel):
     """
     Base model for financial transactions

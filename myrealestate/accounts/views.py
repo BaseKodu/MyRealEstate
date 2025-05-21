@@ -20,6 +20,7 @@ from .forms import InvitedUserRegistrationForm
 from myrealestate.common.views import BaseUpdateView
 
 
+# TODO: After Intergrating djangoAllauth, remove this
 def send_verification_email(user, request):
     context = {
         'user': user,
@@ -93,7 +94,7 @@ class VerifyEmailView(TemplateView):
                 user.email_verification_token = uuid.uuid4()
                 user.save()
                 messages.success(request, 'Email verified successfully!')
-                return self.render_to_response({})  # Use render_to_response instead of render
+                return self.render_to_response({})
             messages.info(request, 'Email already verified. Please login.')
             return redirect('accounts:login')
         except User.DoesNotExist:
@@ -129,11 +130,12 @@ class CompleteRegistrationView(BaseUpdateView):
             email_verified=False
         )
         # TODO: Come back to ensure that when user clicks on the invitation link in their email, they are redirected to this page and can complete their registration
+        # TODO: AllAuth: remove this
         return super(BaseUpdateView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['is_invitation'] = True  # Add flag for template
+        context['is_invitation'] = True  
         context['invited_email'] = self.object.email
         return context
 
@@ -144,7 +146,7 @@ class CompleteRegistrationView(BaseUpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        login(self.request, self.object)  # Log the user in after successful completion
+        login(self.request, self.object)  
         return response
 
     def get_success_url(self):

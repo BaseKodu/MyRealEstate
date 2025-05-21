@@ -2,7 +2,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-# Extracted Enumerators
 class CategoryType(models.TextChoices):
     INCOME = 'I', _('Income')
     EXPENSE = 'E', _('Expense')

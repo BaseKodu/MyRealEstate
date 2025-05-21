@@ -1,4 +1,3 @@
-// Delete functionality
 document.addEventListener('DOMContentLoaded', function() {
     const deleteModal = document.getElementById('delete-modal');
     const deleteModalContent = document.getElementById('delete-modal-content');
@@ -46,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.ok) {
                 // Show success message (if you have a toast/notification system)
                 if (data.message) {
-                    // Assuming you have a showNotification function
                     console.log
                 }
                 
@@ -57,7 +55,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.redirect_url) {
                     window.location.href = data.redirect_url;
                 } else {
-                    // If you want to remove the row without refreshing
                     const row = form.closest('tr');
                     if (row) row.remove();
                 }

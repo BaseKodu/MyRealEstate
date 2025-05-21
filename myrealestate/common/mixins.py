@@ -1,4 +1,3 @@
-# mixins.py
 from django.shortcuts import render
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin

@@ -8,10 +8,6 @@ class FinancesConfig(AppConfig):
 
 
     def ready(self):
-        """
-        Import signal handlers when Django is ready
-        This is crucial to ensure signals are properly connected
-        """
         # Import signal handlers
         import myrealestate.finances.signals
 

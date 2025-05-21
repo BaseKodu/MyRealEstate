@@ -1,8 +1,6 @@
 from django.db import models
 from djmoney.models.fields import MoneyField
 
-# Create your models here.
-
 class BaseModel(models.Model):
     '''
     Base model for all models. Inherit this model to add created_at, updated_at, created_by, updated_by fields to any model.

@@ -1,4 +1,3 @@
-# Create default financial categories for South African property management
 from .models import FinancialCategory
 from myrealestate.companies.models import Company
 from .models.enums import CategoryType

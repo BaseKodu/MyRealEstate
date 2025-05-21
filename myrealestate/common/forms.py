@@ -61,8 +61,6 @@ class DaisyFormMixin:
             ):
                 field.widget.attrs['placeholder'] = field.label or field_name.title()
 
-# Rest of your classes remain the same...
-
 
 class BaseForm(DaisyFormMixin, forms.Form):
     """Base form with DaisyUI styling"""

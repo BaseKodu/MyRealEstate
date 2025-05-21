@@ -19,6 +19,3 @@ def create_company_financial_categories(sender, instance, created, **kwargs):
     """
     if created:
         create_default_financial_categories(instance)
-
-# Other signal handlers (for PropertyPurchase, PropertyBond, etc.)
-# ...
