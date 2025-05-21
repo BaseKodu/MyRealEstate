@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from myrealestate.common.models import BaseModel
-# Create your models here.
 
 
 class Company(BaseModel):

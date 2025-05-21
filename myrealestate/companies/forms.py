@@ -50,10 +50,6 @@ class CompanySettingsForm(BaseModelForm):
             instance.save()
         return instance
 
-
-
-
-# forms.py
 class UserInvitationForm(BaseModelForm):
     email = forms.EmailField(
         label=_("User's Email"),

@@ -1,0 +1,8 @@
+{
+    "name": "myrealestate-static",
+    "version": "1.0.0",
+    "private": true,
+    "dependencies": {
+      "lucide": "^0.344.0"
+    }
+  }

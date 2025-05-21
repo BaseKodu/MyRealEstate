@@ -9,7 +9,8 @@
                 <h2 class="card-title text-2xl">{{ title }}</h2>
                 {% block add_button %}
                     {% if can_add %}
-                    <a href="#" class="btn btn-primary">
+                    <a href="{% url app_name|add:':'|add:'create-'|add:model_name %}"
+                       class="btn btn-primary">
                         Add New
                     </a>
                     {% endif %}

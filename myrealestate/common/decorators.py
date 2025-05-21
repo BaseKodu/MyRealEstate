@@ -8,7 +8,6 @@ from .utils import getCurrentCompany
 def company_required(view_func):
     """
     Decorator that adds current company to the view.
-    Must be used with function-based views.
     """
     @login_required
     @wraps(view_func)

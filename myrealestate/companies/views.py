@@ -32,7 +32,7 @@ class CompanySettingsView(BaseUpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['company'] = self.get_company()  # Pass company to form
+        kwargs['company'] = self.get_company() 
         return kwargs
 
     def patch(self, request, *args, **kwargs):

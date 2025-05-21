@@ -1,0 +1,58 @@
+{% if form.amenities %}
+<div class="form-control w-full mt-6">
+    <label class="label">
+        <span class="label-text text-lg font-semibold">{{ form.amenities.label }}</span>
+    </label>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {% regroup amenities by category as amenity_list %}
+        {% for category in amenity_list %}
+            <div class="border rounded p-3">
+                <h4 class="font-semibold mb-2">{{ category.grouper|title }}</h4>
+                {% for amenity in category.list %}
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <property-icon name="{{ amenity.icon }}" size="18"></property-icon>
+                            <input type="checkbox" 
+                                   name="amenities" 
+                                   value="{{ amenity.id }}"
+                                   {% if amenity.id in form.amenities.value %}checked{% endif %}
+                                   class="checkbox checkbox-sm">
+                            <span class="label-text">{{ amenity.name }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Features Section -->
+{% if form.features %}
+<div class="form-control w-full mt-6">
+    <label class="label">
+        <span class="label-text text-lg font-semibold">{{ form.features.label }}</span>
+    </label>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {% regroup features by category as feature_list %}
+        {% for category in feature_list %}
+            <div class="border rounded p-3">
+                <h4 class="font-semibold mb-2">{{ category.grouper|title }}</h4>
+                {% for feature in category.list %}
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <property-icon name="{{ feature.icon }}" size="18"></property-icon>
+                            <input type="checkbox" 
+                                   name="features" 
+                                   value="{{ feature.id }}"
+                                   {% if feature.id in form.features.value %}checked{% endif %}
+                                   class="checkbox checkbox-sm">
+                            <span class="label-text">{{ feature.name }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

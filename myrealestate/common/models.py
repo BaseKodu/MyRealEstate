@@ -1,6 +1,5 @@
 from django.db import models
-
-# Create your models here.
+from djmoney.models.fields import MoneyField
 
 class BaseModel(models.Model):
     '''
@@ -13,3 +12,13 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+
+class CurrencyField(MoneyField):
+    def __init__(self, *args, **kwargs):
+        # Set default max_digits to 22 and decimal_places to 4 if not provided
+        kwargs.setdefault('max_digits', 22)
+        kwargs.setdefault('decimal_places', 4)
+        super().__init__(*args, **kwargs)
+        

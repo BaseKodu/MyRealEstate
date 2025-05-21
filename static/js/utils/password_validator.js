@@ -41,7 +41,6 @@ class PasswordValidator {
     }
 }
 
-// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new PasswordValidator();
 });

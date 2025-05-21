@@ -58,7 +58,11 @@ class Estate(BaseModel):
     address = models.CharField(max_length=500, null=True, blank=True)
     company = models.ForeignKey('companies.Company', on_delete=models.CASCADE, related_name="owned_estates")
     total_buildings = models.IntegerField(default=0)
-    amenities = models.JSONField(null=True, blank=True)
+    amenities = models.ManyToManyField(
+        'Amenity',
+        through='EstateAmenityRelation',
+        related_name='estates'
+    )
     estate_type = models.CharField(max_length=1, choices=EstateTypeEnums.choices, default=EstateTypeEnums.RESIDENTIAL)
     managing = models.BooleanField(default=False, help_text="Select if you or your company is managing this estate")
     images = GenericRelation('PropertyImage', related_query_name='estate')
@@ -165,8 +169,18 @@ class Unit(BaseModel):
     available_from = models.DateField(null=True, blank=True)
     base_rent = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    features = models.JSONField(null=True, blank=True)
+    amenities = models.ManyToManyField(
+        'Amenity',
+        through='UnitAmenityRelation',
+        related_name='units'
+    )
+    features = models.ManyToManyField(
+        'PropertyFeature',
+        through='UnitFeatureRelation',
+        related_name='units'
+    )
     images = GenericRelation('PropertyImage', related_query_name='unit')
+    parking_spots = models.IntegerField(default=0)
 
     objects = UnitManager()
 
@@ -207,6 +221,44 @@ class Unit(BaseModel):
 
     def __str__(self):
         return f"Unit {self.number} in {self.building.name}"
+
+    def add_amenity(self, amenity, details=''):
+        """Add an amenity with optional details"""
+        return UnitAmenityRelation.objects.create(
+            unit=self,
+            amenity=amenity,
+            details=details
+        )
+
+    def add_feature(self, feature, details=''):
+        """Add a feature with optional details"""
+        return UnitFeatureRelation.objects.create(
+            unit=self,
+            feature=feature,
+            details=details
+        )
+
+    def get_amenities_by_category(self):
+        """Get amenities grouped by category"""
+        from itertools import groupby
+        return {
+            category: list(amenities) 
+            for category, amenities in groupby(
+                self.amenity_relations.select_related('amenity').order_by('amenity__category'),
+                key=lambda x: x.amenity.category
+            )
+        }
+
+    def get_features_by_category(self):
+        """Get features grouped by category"""
+        from itertools import groupby
+        return {
+            category: list(features)
+            for category, features in groupby(
+                self.feature_relations.select_related('feature').order_by('feature__category'),
+                key=lambda x: x.feature.category
+            )
+        }
 
 class SubUnitManager(models.Manager):
    def get_queryset(self):
@@ -353,3 +405,58 @@ class PropertyImage(BaseModel):
 
     def __str__(self):
         return f"Image for {self.content_type.model} ({self.object_id})"
+
+class Amenity(BaseModel):
+    """Base model for various types of amenities"""
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    icon = models.CharField(max_length=50, help_text="Icon identifier for frontend")
+    category = models.CharField(max_length=50, help_text="Category for grouping amenities")
+
+    class Meta:
+        verbose_name_plural = "amenities"
+        ordering = ['category', 'name']
+
+    def __str__(self):
+        return f"{self.name} ({self.category})"
+
+class PropertyFeature(BaseModel):
+    """Features specific to a unit, like AC, furnishing details, etc."""
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    icon = models.CharField(max_length=50)
+    category = models.CharField(max_length=50)
+
+    class Meta:
+        ordering = ['category', 'name']
+
+    def __str__(self):
+        return f"{self.name} ({self.category})"
+
+class UnitAmenityRelation(BaseModel):
+    """Relation between Unit and Amenity with additional details"""
+    unit = models.ForeignKey('Unit', on_delete=models.CASCADE, related_name='amenity_relations')
+    amenity = models.ForeignKey('Amenity', on_delete=models.CASCADE)
+    details = models.CharField(max_length=255, blank=True, 
+                             help_text="Additional details about this amenity")
+
+    class Meta:
+        unique_together = ['unit', 'amenity']
+
+class UnitFeatureRelation(BaseModel):
+    """Relation between Unit and Feature with additional details"""
+    unit = models.ForeignKey('Unit', on_delete=models.CASCADE, related_name='feature_relations')
+    feature = models.ForeignKey('PropertyFeature', on_delete=models.CASCADE)
+    details = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        unique_together = ['unit', 'feature']
+
+class EstateAmenityRelation(BaseModel):
+    """Relation between Estate and Amenity with additional details"""
+    estate = models.ForeignKey('Estate', on_delete=models.CASCADE, related_name='amenity_relations')
+    amenity = models.ForeignKey('Amenity', on_delete=models.CASCADE)
+    details = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        unique_together = ['estate', 'amenity']  
