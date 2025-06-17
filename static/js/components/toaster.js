@@ -1,6 +1,6 @@
 export class Toaster {
     constructor() {
-        // Check if container already exists (useful for turbo/htmx)
+        // Check if container already exists
         this.container = document.getElementById('toast-container') || this.createContainer();
     }
     
