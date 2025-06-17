@@ -5,26 +5,26 @@ from myrealestate.properties.models import Estate, Building, Unit, Amenity, Prop
 class EstateForm(BaseModelForm):
     class Meta:
         model = Estate
-        fields = ['name', 'estate_type', 'managing', 'address', 'amenities']
+        fields = ['name', 'estate_type', 'managing', 'address']
         labels = {
-            'managing': 'Are you managing this estate?',
-            'amenities': 'Estate Amenities'
+            'managing': 'Are you managing this estate?'
+            #'amenities': 'Estate Amenities'
         }
-        widgets = {
-            'amenities': forms.CheckboxSelectMultiple()
-        }
+        #widgets = {
+        #    'amenities': forms.CheckboxSelectMultiple()
+        #}
 
 class EstatePatchForm(BasePatchForm):
     class Meta:
         model = Estate
-        fields = ['name', 'estate_type', 'managing', 'address', 'amenities']
+        fields = ['name', 'estate_type', 'managing', 'address']
         labels = {
-            'managing': 'Are you managing this estate?',
-            'amenities': 'Estate Amenities'
+            'managing': 'Are you managing this estate?'
+            #'amenities': 'Estate Amenities'
         }
-        widgets = {
-            'amenities': forms.CheckboxSelectMultiple()
-        }
+        #widgets = {
+        #    'amenities': forms.CheckboxSelectMultiple()
+        #}
         
 
 

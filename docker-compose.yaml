@@ -11,6 +11,8 @@ services:
       - media_volume:/app/mediafiles
       - node_modules:/app/myrealestate/theme/static/node_modules
       - static_node_modules:/app/static/node_modules
+      - /app/venv  # This prevents the venv from being overwritten
+      - python_packages:/usr/local/lib/python3.11/site-packages 
     ports:
       - "8000:8000"
     environment:
@@ -78,3 +80,4 @@ volumes:
   minio_data:
   node_modules:
   static_node_modules:
+  python_packages
