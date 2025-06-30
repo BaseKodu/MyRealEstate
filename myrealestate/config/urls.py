@@ -16,7 +16,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from myrealestate.companies.views import home
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework import permissions
@@ -38,18 +37,16 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('myrealestate.accounts.urls', namespace='accounts')),
-    path("__reload__/", include("django_browser_reload.urls")),
-    path('home/', home, name='home'),
-    path('properties/', include('myrealestate.properties.urls', namespace='properties')),
-    path('company/', include('myrealestate.companies.urls', namespace='companies')),
+    #path('', include('myrealestate.accounts.urls', namespace='accounts')),
+    #path('properties/', include('myrealestate.properties.urls', namespace='properties')),
+    #path('company/', include('myrealestate.companies.urls', namespace='companies')),
     
     # API URLs
-    path('api/v1/accounts/', include('myrealestate.accounts.api.urls', namespace='accounts_api')),
+    #path('api/v1/accounts/', include('myrealestate.accounts.api.urls', namespace='accounts_api')),
     
     # JWT Authentication URLs
-    path('api/auth/', include('dj_rest_auth.urls')),
-    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+    #path('api/auth/', include('dj_rest_auth.urls')),
+    #path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
     
     # API Documentation
     path('api/swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
