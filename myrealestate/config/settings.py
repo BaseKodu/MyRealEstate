@@ -45,21 +45,33 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+    'allauth',
+    'allauth.account',
     'drf_yasg'
+]
+
+PROJECT_APPS = [
+    'myrealestate.common',
+    'myrealestate.accounts',
+    'myrealestate.companies',
+
+
 ]
 
 '''
 PROJECT_APPS = [
-    'myrealestate.accounts',
-    'myrealestate.common',
     'myrealestate.theme',
-    'myrealestate.companies',
     'myrealestate.properties',
     'myrealestate.finances.apps.FinancesConfig'
 ]
 '''
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS # + PROJECT_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
 
 
@@ -76,6 +88,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'myrealestate.config.urls'
@@ -179,7 +192,7 @@ else:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = 'accounts.User'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -220,7 +233,7 @@ DEFAULT_FILE_STORAGE = 'myrealestate.common.storage.CustomS3Boto3Storage'
 
 # Email Settings
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'mailpit')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 1025))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'False') == 'True'
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@myrealestate.co.za')
@@ -232,3 +245,45 @@ EMAIL_DEBUG = 1
 CURRENCIES = ('ZAR',)
 CURRENCY_CHOICES = [('ZAR', 'South African Rand')]
 DEFAULT_CURRENCY = 'ZAR'
+
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+
+
+
+# JWT Settings
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+}
+
+# dj-rest-auth settings
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'jwt-auth',
+    'JWT_AUTH_REFRESH_COOKIE': 'jwt-refresh-token',
+    'JWT_AUTH_HTTPONLY': False,
+    'USER_DETAILS_SERIALIZER': 'myrealestate.accounts.serializers.CustomUserDetailsSerializer',
+    'REGISTER_SERIALIZER': 'myrealestate.accounts.serializers.CustomRegisterSerializer',
+}
+
+# Allauth settings
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_UNIQUE_EMAIL = True
