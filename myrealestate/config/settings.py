@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import django.core.mail
 import os
+from datetime import timedelta
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -45,6 +46,16 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'tailwind',
     'django_browser_reload',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'corsheaders',
+    'drf_yasg',
 ]
 
 PROJECT_APPS = [
@@ -67,6 +78,7 @@ INTERNAL_IPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -76,6 +88,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_browser_reload.middleware.BrowserReloadMiddleware",
     'myrealestate.config.middleware.CompanyMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'myrealestate.config.urls'
@@ -105,6 +118,14 @@ WSGI_APPLICATION = 'myrealestate.config.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "db.sqlite3",
+    }
+}
+
+'''
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DB', 'postgres'),
@@ -114,7 +135,7 @@ DATABASES = {
         'PORT': os.getenv('POSTGRES_PORT', '5432'),
     }
 }
-
+'''
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -176,8 +197,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User'
 
 AUTHENTICATION_BACKENDS = [
-    'myrealestate.accounts.backends.EmailOrUsernameModelBackend',
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 LOGIN_REDIRECT_URL = '/home/'
@@ -227,3 +248,87 @@ EMAIL_DEBUG = 1
 CURRENCIES = ('ZAR',)
 CURRENCY_CHOICES = [('ZAR', 'South African Rand')]
 DEFAULT_CURRENCY = 'ZAR'
+
+# Django REST Framework Settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
+}
+
+# JWT Settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'JWK_URL': None,
+    'LEEWAY': 0,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# dj-rest-auth settings
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'jwt-auth',
+    'JWT_AUTH_REFRESH_COOKIE': 'jwt-refresh-token',
+    'JWT_AUTH_HTTPONLY': False,
+    'SESSION_LOGIN': False,
+    'USER_DETAILS_SERIALIZER': 'myrealestate.accounts.api.serializers.CustomUserDetailsSerializer',
+    'TOKEN_SERIALIZER': 'myrealestate.accounts.api.serializers.CustomTokenObtainPairSerializer',
+}
+
+# dj-rest-auth registration settings
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'myrealestate.accounts.api.serializers.CustomRegisterSerializer',
+}
+
+# Allauth Configuration
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_VALIDATORS = None
+
+# Custom Allauth Adapter
+ACCOUNT_ADAPTER = 'myrealestate.accounts.adapters.CustomAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'myrealestate.accounts.adapters.CustomSocialAccountAdapter'
+
+# Allauth Forms
+ACCOUNT_FORMS = {
+    'signup': 'myrealestate.accounts.allauth_forms.CustomSignupForm',
+    'login': 'myrealestate.accounts.allauth_forms.CustomLoginForm',
+}
+
+# Site ID for allauth
+SITE_ID = 1
+
+# Frontend URL for email verification
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+
+# CORS Settings (for API access from frontend)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True

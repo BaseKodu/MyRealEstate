@@ -25,6 +25,9 @@ class CustomUserManager(BaseUserManager):
 
 # TODO: Allow users to be able to register and manage their properties not as companies but rather as individuals
 class User(AbstractUser):
+    # Remove username field - we'll use email only
+    username = None
+    
     email = models.EmailField(_('email address'), unique=True)
     companies = models.ManyToManyField(
         Company,
@@ -34,14 +37,14 @@ class User(AbstractUser):
         verbose_name=_('Companies'),
     )
     email_verified = models.BooleanField(default=False)
-    email_verification_token = models.UUIDField(unique=True, default=uuid.uuid4)
+    email_verification_token = models.UUIDField(unique=True, default=uuid.uuid4, null=True, blank=True)
 
     def generate_verification_token(self):
         self.email_verification_token = uuid.uuid4()
         self.save()
     
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = []  # Remove username from required fields
     
     objects = CustomUserManager()
     
@@ -51,7 +54,7 @@ class User(AbstractUser):
     
     def __str__(self):
         return self.email
-    
+
 
 class UserTypeEnums(models.TextChoices):
     SUPERADMIN = 'sa', _('Superadmin')
