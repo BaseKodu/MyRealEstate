@@ -21,6 +21,14 @@ from django.conf import settings
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from django.urls import re_path
+
+# First create the URL patterns without schema view
+api_urlpatterns = [
+    path('api/v1/properties/', include('myrealestate.properties.api.urls', namespace='properties-api')),
+    path('api/auth/', include('dj_rest_auth.urls')),
+    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+]
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -33,6 +41,7 @@ schema_view = get_schema_view(
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
+    patterns=api_urlpatterns,  # Include the API patterns here
 )
 
 urlpatterns = [
@@ -41,17 +50,11 @@ urlpatterns = [
     #path('properties/', include('myrealestate.properties.urls', namespace='properties')),
     #path('company/', include('myrealestate.companies.urls', namespace='companies')),
     
-    # API URLs
-    #path('api/v1/accounts/', include('myrealestate.accounts.api.urls', namespace='accounts_api')),
-    
-    # JWT Authentication URLs
-    #path('api/auth/', include('dj_rest_auth.urls')),
-    #path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
-    path('api/auth/', include('dj_rest_auth.urls')),
-    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+    # Include all API URLs
+    *api_urlpatterns,
     
     # API Documentation
-    path('api/swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    re_path(r'^api/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
