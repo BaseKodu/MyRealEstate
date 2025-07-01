@@ -46,13 +46,8 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    #path('', include('myrealestate.accounts.urls', namespace='accounts')),
-    #path('properties/', include('myrealestate.properties.urls', namespace='properties')),
-    #path('company/', include('myrealestate.companies.urls', namespace='companies')),
-    
     # Include all API URLs
     *api_urlpatterns,
-    
     # API Documentation
     re_path(r'^api/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
