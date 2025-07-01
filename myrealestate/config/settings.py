@@ -59,6 +59,7 @@ PROJECT_APPS = [
     'myrealestate.common',
     'myrealestate.accounts',
     'myrealestate.companies',
+    'myrealestate.properties',
 
 
 ]
