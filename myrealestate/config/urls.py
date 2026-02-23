@@ -15,18 +15,21 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from django.urls import re_path
+from myrealestate.accounts.views import CustomConfirmEmailView
 
-# First create the URL patterns without schema view
+
+# URL patterns without schema view
 api_urlpatterns = [
     path('api/v1/properties/', include('myrealestate.properties.api.urls', namespace='properties-api')),
     path('api/auth/', include('dj_rest_auth.urls')),
+    # Custom email confirmation URL
+    re_path(r'^api/auth/registration/account-confirm-email/(?P<key>[-:\w]+)/$', CustomConfirmEmailView.as_view(), name='account_confirm_email'),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
 ]
 

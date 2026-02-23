@@ -12,6 +12,13 @@ class CustomRegisterSerializer(RegisterSerializer):
     phone_number = serializers.CharField(required=False)
     company_name = serializers.CharField(required=True, max_length=255)
     
+    def validate_email(self, email):
+        """Validate that the email is not already in use"""
+        email = super().validate_email(email)
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return email
+    
     def validate_company_name(self, value):
         """Validate that company name is not"""
         if not value.strip():
